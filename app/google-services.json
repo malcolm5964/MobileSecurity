@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "784873842847",
+    "project_id": "mobilesecurity-e692e",
+    "storage_bucket": "mobilesecurity-e692e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:784873842847:android:6399550c281a0a30721aaa",
+        "android_client_info": {
+          "package_name": "com.example.mobilesecurity"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTvxSwwjfAFrBAlk8TqvrDh6YKu4kcPlA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
