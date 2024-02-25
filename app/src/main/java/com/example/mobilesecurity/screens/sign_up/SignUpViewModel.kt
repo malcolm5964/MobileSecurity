@@ -29,7 +29,7 @@ class SignUpViewModel(private val repository: AccountRepository) : ViewModel() {
 
     fun onSignUpClick(navController: NavController) = viewModelScope.launch {
         repository.signUp(email.value, password.value)
-        navController.navigate("signin_screen")
+        navController.navigate("home_screen")
     }
 }
 
