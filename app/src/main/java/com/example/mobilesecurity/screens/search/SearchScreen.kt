@@ -60,7 +60,7 @@ fun SearchScreen(
             onActiveChange = {},
             placeholder =
             {
-                Text(text = "Search Name or Team Channel")
+                Text(text = "Search Name or Group Channel")
             },
             leadingIcon = {
                 Icon(
@@ -80,7 +80,7 @@ fun SearchScreen(
                         key = { index -> searchResults[index].id },
                         itemContent = { index ->
                             val movie = searchResults[index]
-                            MovieListItem(searchItem = movie)
+                            MovieListItem(searchItem = movie, navController = navController)
                         }
                     )
                 }
@@ -103,8 +103,9 @@ fun SearchScreen(
 
 @Composable
 fun MovieListItem(
+    modifier: Modifier = Modifier,
     searchItem: SearchItem,
-    modifier: Modifier = Modifier
+    navController: NavController = rememberNavController()
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -113,8 +114,10 @@ fun MovieListItem(
             /*TODO: Navigate to user profile page or group page*/
             if (searchItem.type == "Group") {
                 // navController.navigate("group/${searchItem.id}")
+                navController.navigate("")
             } else {
                 // navController.navigate("user/${searchItem.id}")
+                navController.navigate("")
             }
         }
     ) {
