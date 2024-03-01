@@ -11,9 +11,6 @@ import com.example.mobilesecurity.model.AccountRepository
 import com.example.mobilesecurity.screens.home.HomeScreen
 import com.example.mobilesecurity.screens.home.HomeScreenViewModel
 import com.example.mobilesecurity.screens.home.HomeScreenViewModelFactory
-import com.example.mobilesecurity.screens.home.makeadmin
-import com.example.mobilesecurity.screens.home.makeadminViewModel
-import com.example.mobilesecurity.screens.home.makeadminViewModelFactory
 import com.example.mobilesecurity.screens.sign_in.SignInViewModelFactory
 import com.example.mobilesecurity.screens.sign_up.SignUpScreen
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModel
@@ -23,8 +20,6 @@ sealed class Screen(val route: String) {
     object SignInScreen : Screen(route = "signin_screen")
     object SignUpScreen : Screen(route = "signup_screen")
     object HomeScreen: Screen(route = "home_screen")
-
-    object makeadmin: Screen(route = "makeadmin")
 }
 
 //ViewModel Factory
@@ -40,10 +35,6 @@ val homeScreenViewModelFactory = HomeScreenViewModelFactory(
     AccountRepository()
 )
 
-val makeadminViewModelFactory = makeadminViewModelFactory(
-    AccountRepository()
-)
-
 
 
 @Composable
@@ -52,7 +43,7 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "makeadmin",
+        startDestination = "signin_screen",
         ){
 
         composable(Screen.SignInScreen.route) {
@@ -68,11 +59,6 @@ fun NavGraph(
         composable(Screen.HomeScreen.route) {
             val viewModel: HomeScreenViewModel = viewModel(factory = homeScreenViewModelFactory)
             HomeScreen(viewModel, navController)
-        }
-
-        composable(Screen.makeadmin.route) {
-            val viewModel: makeadminViewModel = viewModel(factory = makeadminViewModelFactory)
-            makeadmin(viewModel, navController)
         }
 
     }
