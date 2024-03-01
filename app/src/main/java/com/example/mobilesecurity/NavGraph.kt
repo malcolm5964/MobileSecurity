@@ -19,9 +19,6 @@ import com.example.mobilesecurity.screens.sign_up.SignUpScreen
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModel
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModelFactory
 import com.example.mobilesecurity.screens.search.SearchScreen
-import com.example.mobilesecurity.screens.search.SearchScreenViewModel
-import com.example.mobilesecurity.screens.search.SearchScreenViewModelFactory
-
 
 
 sealed class Screen(val route: String) {

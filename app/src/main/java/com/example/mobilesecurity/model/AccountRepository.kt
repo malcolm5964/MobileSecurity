@@ -13,15 +13,17 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.lang.Exception
 
-class AccountRepository  {
+class AccountRepository {
 
     val db = Firebase.firestore
 
-     val currentUser: Flow<User?>
+    val currentUser: Flow<User?>
         get() = callbackFlow {
             val listener =
                 FirebaseAuth.AuthStateListener { auth ->
@@ -44,8 +46,8 @@ class AccountRepository  {
             Firebase.auth.signInWithEmailAndPassword(email, password).await()
             Pair(true, null)
         } catch (e: Exception) {
-            if(e is FirebaseAuthException) {
-            Pair(false, e.localizedMessage)
+            if (e is FirebaseAuthException) {
+                Pair(false, e.localizedMessage)
             }
             Pair(false, "Wrong Email or Password")
         }
@@ -65,12 +67,12 @@ class AccountRepository  {
     }
 
 
-
-    //FireStore Part
+    //Add user information on firestore
     fun addUserData(id: String, name: String) {
 
         val user = hashMapOf(
             "userName" to "$name",
+            "userRole" to "student"
         )
 
         //Add new user document
