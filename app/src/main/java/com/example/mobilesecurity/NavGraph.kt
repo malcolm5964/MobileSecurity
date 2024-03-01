@@ -11,6 +11,9 @@ import com.example.mobilesecurity.model.AccountRepository
 import com.example.mobilesecurity.screens.home.HomeScreen
 import com.example.mobilesecurity.screens.home.HomeScreenViewModel
 import com.example.mobilesecurity.screens.home.HomeScreenViewModelFactory
+import com.example.mobilesecurity.screens.profile.ProfileScreen
+import com.example.mobilesecurity.screens.profile.ProfileViewModel
+import com.example.mobilesecurity.screens.profile.ProfileViewModelFactory
 import com.example.mobilesecurity.screens.search.SearchScreen
 import com.example.mobilesecurity.screens.search.SearchScreenViewModel
 import com.example.mobilesecurity.screens.search.SearchScreenViewModelFactory
@@ -24,6 +27,7 @@ sealed class Screen(val route: String) {
     object SignUpScreen : Screen(route = "signup_screen")
     object HomeScreen: Screen(route = "home_screen")
     object SearchScreen: Screen(route = "search_screen")
+    object ProfileScreen: Screen(route = "profile_screen")
 }
 
 //ViewModel Factory
@@ -40,6 +44,10 @@ val homeScreenViewModelFactory = HomeScreenViewModelFactory(
 )
 
 val searchScreenViewModelFactory = SearchScreenViewModelFactory(
+    AccountRepository()
+)
+
+val profileViewModelFactory = ProfileViewModelFactory (
     AccountRepository()
 )
 
@@ -74,5 +82,10 @@ fun NavGraph(
             SearchScreen(viewModel = viewModel, navController = navController)
         }
 
+        composable(Screen.ProfileScreen.route) {
+            val viewModel: ProfileViewModel = viewModel(factory = profileViewModelFactory)
+            ProfileScreen(viewModel = viewModel ,navController = navController)
+        }
+        
     }
 }

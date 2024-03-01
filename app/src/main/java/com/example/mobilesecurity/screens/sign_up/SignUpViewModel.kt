@@ -1,10 +1,12 @@
 package com.example.mobilesecurity.screens.sign_up
 
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.mobilesecurity.model.AccountRepository
+import com.example.mobilesecurity.model.service.firebase.User
 import com.example.mobilesecurity.screens.sign_in.SignInViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -12,11 +14,17 @@ import kotlinx.coroutines.launch
 class SignUpViewModel(private val repository: AccountRepository) : ViewModel() {
 
     val email = MutableStateFlow("")
+    val username = MutableStateFlow("")
     val password = MutableStateFlow("")
     val confirmPassword = MutableStateFlow("")
+    val role = MutableStateFlow("")
 
     fun updateEmail(newEmail: String) {
         email.value = newEmail
+    }
+
+    fun updateUsername(newUsername: String) {
+        username.value = newUsername
     }
 
     fun updatePassword(newPassword: String) {
@@ -28,7 +36,7 @@ class SignUpViewModel(private val repository: AccountRepository) : ViewModel() {
     }
 
     fun onSignUpClick(navController: NavController) = viewModelScope.launch {
-        repository.signUp(email.value, password.value)
+        repository.signUp(email.value, username.value, password.value )
         navController.navigate("home_screen")
     }
 }

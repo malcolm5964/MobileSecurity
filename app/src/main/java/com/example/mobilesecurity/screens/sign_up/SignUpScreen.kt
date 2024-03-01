@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
@@ -34,6 +35,7 @@ import com.example.mobilesecurity.ui.theme.Purple40
 fun SignUpScreen(viewModel : SignUpViewModel = viewModel(), navController: NavController, modifier: Modifier = Modifier) {
 
     val email = viewModel.email.collectAsState()
+    val username = viewModel.username.collectAsState()
     val password = viewModel.password.collectAsState()
     val confirmPassword = viewModel.confirmPassword.collectAsState()
 
@@ -53,6 +55,7 @@ fun SignUpScreen(viewModel : SignUpViewModel = viewModel(), navController: NavCo
             .fillMaxWidth()
             .padding(12.dp))
 
+        //Email
         OutlinedTextField(
             singleLine = true,
             modifier = modifier
@@ -66,6 +69,22 @@ fun SignUpScreen(viewModel : SignUpViewModel = viewModel(), navController: NavCo
             onValueChange = { viewModel.updateEmail(it) },
             placeholder = { Text("Email") },
             leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email") }
+        )
+
+        //Name
+        OutlinedTextField(
+            singleLine = true,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp, 4.dp)
+                .border(
+                    BorderStroke(width = 2.dp, color = Purple40),
+                    shape = RoundedCornerShape(50)
+                ),
+            value = username.value,
+            onValueChange = { viewModel.updateUsername(it) },
+            placeholder = { Text("Username") },
+            leadingIcon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Username") }
         )
 
         OutlinedTextField(

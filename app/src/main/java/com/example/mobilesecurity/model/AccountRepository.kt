@@ -1,10 +1,16 @@
 package com.example.mobilesecurity.model
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import com.example.mobilesecurity.model.service.firebase.User
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.auth
+import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -12,6 +18,8 @@ import kotlinx.coroutines.tasks.await
 import java.lang.Exception
 
 class AccountRepository  {
+
+    val db = Firebase.firestore
 
      val currentUser: Flow<User?>
         get() = callbackFlow {
@@ -25,6 +33,7 @@ class AccountRepository  {
 
     val currentUserId: String
         get() = Firebase.auth.currentUser?.uid.orEmpty()
+
 
     fun hasUser(): Boolean {
         return Firebase.auth.currentUser != null
@@ -42,8 +51,9 @@ class AccountRepository  {
         }
     }
 
-    suspend fun signUp(email: String, password: String) {
+    suspend fun signUp(email: String, username: String, password: String) {
         Firebase.auth.createUserWithEmailAndPassword(email, password).await()
+        addUserData(currentUserId, username)
     }
 
     suspend fun signOut() {
@@ -53,4 +63,22 @@ class AccountRepository  {
     suspend fun deleteAccount() {
         Firebase.auth.currentUser!!.delete().await()
     }
+
+
+
+    //FireStore Part
+    fun addUserData(id: String, name: String) {
+
+        val user = hashMapOf(
+            "userName" to "$name",
+        )
+
+        //Add new user document
+        db.collection("users")
+            .document(id)
+            .set(user)
+    }
+
+
+
 }
