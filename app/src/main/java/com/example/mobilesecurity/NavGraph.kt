@@ -11,9 +11,6 @@ import com.example.mobilesecurity.model.AccountRepository
 import com.example.mobilesecurity.screens.home.HomeScreen
 import com.example.mobilesecurity.screens.home.HomeScreenViewModel
 import com.example.mobilesecurity.screens.home.HomeScreenViewModelFactory
-import com.example.mobilesecurity.screens.profile.ProfileScreen
-import com.example.mobilesecurity.screens.profile.ProfileViewModel
-import com.example.mobilesecurity.screens.profile.ProfileViewModelFactory
 import com.example.mobilesecurity.screens.search.SearchScreen
 import com.example.mobilesecurity.screens.search.SearchScreenViewModel
 import com.example.mobilesecurity.screens.search.SearchScreenViewModelFactory
@@ -21,11 +18,19 @@ import com.example.mobilesecurity.screens.sign_in.SignInViewModelFactory
 import com.example.mobilesecurity.screens.sign_up.SignUpScreen
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModel
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModelFactory
+import com.example.mobilesecurity.screens.search.SearchScreen
+import com.example.mobilesecurity.screens.search.SearchScreenViewModel
+import com.example.mobilesecurity.screens.search.SearchScreenViewModelFactory
+
+
 
 sealed class Screen(val route: String) {
     object SignInScreen : Screen(route = "signin_screen")
     object SignUpScreen : Screen(route = "signup_screen")
     object HomeScreen: Screen(route = "home_screen")
+
+    object makeadminScreen: Screen(route= "make_admin")
+
     object SearchScreen: Screen(route = "search_screen")
     object ProfileScreen: Screen(route = "profile_screen")
 }
@@ -44,10 +49,6 @@ val homeScreenViewModelFactory = HomeScreenViewModelFactory(
 )
 
 val searchScreenViewModelFactory = SearchScreenViewModelFactory(
-    AccountRepository()
-)
-
-val profileViewModelFactory = ProfileViewModelFactory (
     AccountRepository()
 )
 
@@ -82,10 +83,5 @@ fun NavGraph(
             SearchScreen(viewModel = viewModel, navController = navController)
         }
 
-        composable(Screen.ProfileScreen.route) {
-            val viewModel: ProfileViewModel = viewModel(factory = profileViewModelFactory)
-            ProfileScreen(viewModel = viewModel ,navController = navController)
-        }
-        
     }
 }
