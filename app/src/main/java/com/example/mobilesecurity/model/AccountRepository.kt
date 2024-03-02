@@ -92,4 +92,24 @@ class AccountRepository {
             User() // Return a default user in case of an exception
         }
     }
+
+    suspend fun updateUsername(newUsername: String): Pair<Boolean, String> {
+        val userUpdate: Map<String, Any> = mapOf("userName" to newUsername)
+        return try {
+            db.collection("users").document(currentUserId).update(userUpdate).await()
+            Pair(true, "Username updated successfully.")
+        } catch (e: Exception) {
+            Pair(false, "Error updating user username: ${e.message}")
+        }
+    }
+
+    suspend fun updatePassword(newPassword: String): Pair<Boolean, String> {
+        return try {
+            FirebaseAuth.getInstance().currentUser?.updatePassword(newPassword)?.await()
+            Pair(true, "Password updated successfully.")
+        } catch (e: Exception) {
+            Pair(false, "Error updating password: ${e.message}")
+        }
+    }
+
 }

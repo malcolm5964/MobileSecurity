@@ -13,10 +13,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+val updateMessage = MutableStateFlow<Pair<Boolean, String>?>(null)
 class ProfileViewModel(private val repository: AccountRepository) : ViewModel() {
 
     val user = mutableStateOf(User())
     val username = mutableStateOf("")
+    val password = mutableStateOf("")
 
     init {
         viewModelScope.launch {
@@ -26,15 +28,48 @@ class ProfileViewModel(private val repository: AccountRepository) : ViewModel() 
         }
     }
 
-    fun updateUsername(newUsername: String) {
-        username.value = newUsername
+    fun updateUserInfo(newUsername: String, newPassword: String) {
+        viewModelScope.launch {
+            var updateOccurred = false
+            var message = ""
+
+            if (newUsername.isNotEmpty()) {
+                val (success, updateMessage) = repository.updateUsername(newUsername)
+                if (success) {
+                    user.value = user.value.copy(username = newUsername)
+                    username.value = newUsername
+                    updateOccurred = true
+                }
+                message += updateMessage // Append message regardless of success to provide feedback
+            }
+
+            if (newPassword.isNotEmpty()) {
+                val (success, updateMessage) = repository.updatePassword(newPassword)
+                if (success) {
+                    password.value = newPassword
+                    updateOccurred = true
+                } else {
+                    // If password update fails, consider not clearing fields to allow user correction
+                }
+                if (message.isNotEmpty()) message += "\n" // Add a newline if there was a previous message
+                message += updateMessage
+            }
+
+            if (updateOccurred) {
+                // Clear the fields after update
+                username.value = ""
+                password.value = ""
+                Log.d("ProfileViewModel", "Update successful: $message")
+            } else {
+                Log.d("ProfileViewModel", "Update not performed: $message")
+            }
+        }
     }
 }
 
 
-
 class ProfileViewModelFactory(private val repository: AccountRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return ProfileViewModel(repository) as T
