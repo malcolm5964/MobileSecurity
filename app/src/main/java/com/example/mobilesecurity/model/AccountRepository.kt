@@ -10,7 +10,9 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,6 +83,13 @@ class AccountRepository {
             .set(user)
     }
 
-
-
+    suspend fun getUserData(): User {
+        return try {
+            val documentSnapshot = db.collection("users").document(currentUserId).get().await()
+            documentSnapshot.toObject<User>() ?: User() // Return a default user if data is null
+        } catch (e: Exception) {
+            Log.e("AccountRepository", "Error fetching user data", e)
+            User() // Return a default user in case of an exception
+        }
+    }
 }
