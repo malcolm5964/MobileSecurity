@@ -1,9 +1,7 @@
 package com.example.mobilesecurity.model
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import com.example.mobilesecurity.model.service.firebase.User
-import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -60,6 +58,15 @@ class AccountRepository {
         addUserData(currentUserId, username)
     }
 
+    //error in this method
+    suspend fun createTeam(teamName: String, teamMember: String) {
+        // Convert teamMembers (List<User>) into a list of user IDs (List<String>)
+      //  val teamMember = teamMembers.map { it.id }
+
+        // Now call addTeamData with teamName and the list of member IDs
+        //addTeamData(teamName, teamMember)
+    }
+
     suspend fun signOut() {
         Firebase.auth.signOut()
     }
@@ -81,6 +88,16 @@ class AccountRepository {
         db.collection("users")
             .document(id)
             .set(user)
+    }
+    //create new team, on firestore
+    fun addTeamData(id: String, teamName: String, teamMember: List<User>){
+        val team = hashMapOf(
+            "teamName" to teamName,
+            "teamMember" to teamMember
+        )
+        db.collection("team")
+            .document(id)
+            .set(team)
     }
 
     suspend fun getUserData(): User {
