@@ -8,6 +8,7 @@ import com.example.mobilesecurity.screens.sign_in.SignInScreen
 import com.example.mobilesecurity.screens.sign_in.SignInViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobilesecurity.model.AccountRepository
+import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModel
 import com.example.mobilesecurity.screens.home.HomeScreen
 import com.example.mobilesecurity.screens.home.HomeScreenViewModel
 import com.example.mobilesecurity.screens.home.HomeScreenViewModelFactory
@@ -22,6 +23,10 @@ import com.example.mobilesecurity.screens.sign_up.SignUpScreen
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModel
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModelFactory
 import com.example.mobilesecurity.screens.search.SearchScreen
+import com.example.mobilesecurity.screens.createTeam.CreateTeamScreen
+import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModelFactory
+
+
 
 
 sealed class Screen(val route: String) {
@@ -31,6 +36,7 @@ sealed class Screen(val route: String) {
 
     object makeadminScreen: Screen(route= "make_admin")
 
+    object CreateTeamScreen: Screen(route = "createTeam_screen")
     object SearchScreen: Screen(route = "search_screen")
     object ProfileScreen: Screen(route = "profile_screen")
 }
@@ -55,7 +61,9 @@ val searchScreenViewModelFactory = SearchScreenViewModelFactory(
 val profileViewModelFactory = ProfileViewModelFactory(
     AccountRepository()
 )
-
+val createTeamViewModelFactory = ProfileViewModelFactory(
+    AccountRepository()
+)
 
 
 @Composable
@@ -91,6 +99,9 @@ fun NavGraph(
             val viewModel: ProfileViewModel = viewModel(factory = profileViewModelFactory)
             ProfileScreen(viewModel = viewModel, navController = navController)
         }
-
+        composable(Screen.CreateTeamScreen.route) {
+            val viewModel: CreateTeamViewModel = viewModel(factory = createTeamViewModelFactory)
+            CreateTeamScreen(viewModel, navController = navController)
+        }
     }
 }
