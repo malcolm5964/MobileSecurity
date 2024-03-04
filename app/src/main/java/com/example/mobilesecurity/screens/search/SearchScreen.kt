@@ -7,15 +7,20 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,17 +33,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.mobilesecurity.model.SearchItem
+import com.example.mobilesecurity.screens.createTeam.BottomNavigationBar
 
 @Composable
 fun SearchScreen(modifier: Modifier = Modifier, viewModel: SearchScreenViewModel = viewModel(), navController: NavController = rememberNavController()) {
     val searchResults by viewModel.searchResults.collectAsState()
 
-    SearchScreen(
-        searchQuery = viewModel.searchQuery,
-        searchResults = searchResults,
-        onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
-        navController = navController
-    )
+    Scaffold(bottomBar = {
+        BottomNavigationBar(navController = navController)
+    }) { innerPadding ->
+        SearchScreen(
+            searchQuery = viewModel.searchQuery,
+            searchResults = searchResults,
+            onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+            navController = navController,
+            innerPadding = innerPadding
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,11 +58,13 @@ fun SearchScreen(
     searchQuery: String,
     searchResults: List<SearchItem>,
     onSearchQueryChange: (String) -> Unit,
-    navController: NavController = rememberNavController()
+    navController: NavController = rememberNavController(),
+    innerPadding: PaddingValues
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(innerPadding)
     ) {
         SearchBar(
             query = searchQuery,
@@ -128,5 +141,25 @@ fun SearchListItem(
             tint = MaterialTheme.colorScheme.onSurface,
             contentDescription = null
         )
+    }
+}
+
+@Composable
+fun BottomNavigationBar(navController: NavController) {
+    BottomAppBar {
+        Row(
+            horizontalArrangement = Arrangement.SpaceAround,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton(onClick = { navController.navigate("home_screen") }) {
+                Icon(Icons.Filled.Home, contentDescription = "Home")
+            }
+            IconButton(onClick = { navController.navigate("search_screen") }) {
+                Icon(Icons.Filled.Search, contentDescription = "Search")
+            }
+            IconButton(onClick = { navController.navigate("profile_screen") }) {
+                Icon(Icons.Filled.Person, contentDescription = "Profile")
+            }
+        }
     }
 }
