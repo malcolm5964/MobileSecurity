@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.mobilesecurity.model.AccountRepository
+import com.example.mobilesecurity.model.SearchItem
 import com.example.mobilesecurity.model.SearchRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -97,12 +98,6 @@ class SearchScreenViewModelFactory(private val repository: AccountRepository): V
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-
-data class SearchItem(
-    val id: String,
-    val name: String,
-    val type: String
-)
 
 private val searchItemFlow = flowOf(
     listOf(
