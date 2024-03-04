@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.mobilesecurity.model.SearchItem
 
 @Composable
 fun SearchScreen(modifier: Modifier = Modifier, viewModel: SearchScreenViewModel = viewModel(), navController: NavController = rememberNavController()) {
