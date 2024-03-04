@@ -100,3 +100,51 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel(), navController: NavC
         }
     }
 }
+
+@Composable
+fun ViewProfileScreen(viewModel: ViewProfileViewModel = viewModel(), navController: NavController, modifier: Modifier = Modifier) {
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(navController = navController)
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Image(
+                    painter = painterResource(id = R.drawable.tum_0),
+                    contentDescription = "Auth image",
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(16.dp, 4.dp)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Username Field
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Username", modifier = Modifier.padding(start = 16.dp, end = 16.dp))
+
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                BorderStroke(width = 2.dp, color = Purple40),
+                                shape = RoundedCornerShape(50)
+                            ),
+                        singleLine = true,
+                        value = viewModel.selectedUsername.value,
+                        onValueChange = { viewModel.selectedUsername.value = it },
+                        enabled = false
+                    )
+                }
+            }
+        }
+    }
+}

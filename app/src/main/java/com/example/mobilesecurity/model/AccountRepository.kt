@@ -102,8 +102,21 @@ class AccountRepository {
 
     suspend fun getUserData(): User {
         return try {
+            Log.d("AccountRepository", "Fetching user data for $currentUserId")
             val documentSnapshot = db.collection("users").document(currentUserId).get().await()
-            documentSnapshot.toObject<User>() ?: User() // Return a default user if data is null
+            User(documentSnapshot.id, documentSnapshot.getString("userName") ?: "", documentSnapshot.getString("userRole") ?: "") // Return a default user if data is null
+            //documentSnapshot.toObject<User>() ?: User() // Return a default user if data is null
+        } catch (e: Exception) {
+            Log.e("AccountRepository", "Error fetching user data", e)
+            User() // Return a default user in case of an exception
+        }
+    }
+
+    suspend fun getUserData(userId: String = ""): User {
+        return try {
+            Log.d("AccountRepository", "Fetching user data for $userId")
+            val documentSnapshot = db.collection("users").document(userId).get().await()
+            User(documentSnapshot.id, documentSnapshot.getString("userName") ?: "", documentSnapshot.getString("userRole") ?: "") // Return a default user if data is null
         } catch (e: Exception) {
             Log.e("AccountRepository", "Error fetching user data", e)
             User() // Return a default user in case of an exception

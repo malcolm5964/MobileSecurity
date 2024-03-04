@@ -25,12 +25,15 @@ class SearchScreenViewModel(private val repository: AccountRepository, private v
         private set
 
     private val _searchItems = MutableStateFlow<List<SearchItem>>(emptyList())
-    val searchItems: StateFlow<List<SearchItem>> = _searchItems
+    private val searchItems: StateFlow<List<SearchItem>> = _searchItems
 
     init {
         viewModelScope.launch {
             val users = searchRepository.getAllUsers()
-            val userSearchItem = users.map { user ->
+            val otherUsers = users.filter { user ->
+                user.id != userID
+            }
+            val userSearchItem = otherUsers.map { user ->
                 SearchItem(
                     id = user.id,
                     name = user.username,
@@ -66,7 +69,6 @@ class SearchScreenViewModel(private val repository: AccountRepository, private v
     private fun addTeamSearchItems(teamSearchItems: List<SearchItem>) {
         _searchItems.value += teamSearchItems
     }
-
 
     fun onSearchQueryChange(newQuery: String) {
         searchQuery = newQuery

@@ -131,7 +131,8 @@ fun SearchListItem(
                 navController.navigate("")
             } else {
                 // navController.navigate("user/${searchItem.id}")
-                navController.navigate("")
+                val userId = searchItem.id
+                navController.navigate("profile_screen/$userId")
             }
         }
     ) {

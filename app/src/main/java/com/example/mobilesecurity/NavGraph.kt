@@ -1,6 +1,8 @@
 package com.example.mobilesecurity
 
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,20 +28,20 @@ import com.example.mobilesecurity.screens.sign_up.SignUpViewModelFactory
 import com.example.mobilesecurity.screens.search.SearchScreen
 import com.example.mobilesecurity.screens.createTeam.CreateTeamScreen
 import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModelFactory
-
-
+import com.example.mobilesecurity.screens.profile.ViewProfileViewModelFactory
+import com.example.mobilesecurity.screens.profile.ViewProfileScreen
+import com.example.mobilesecurity.screens.profile.ViewProfileViewModel
 
 
 sealed class Screen(val route: String) {
     object SignInScreen : Screen(route = "signin_screen")
     object SignUpScreen : Screen(route = "signup_screen")
     object HomeScreen: Screen(route = "home_screen")
-
     object makeadminScreen: Screen(route= "make_admin")
-
     object CreateTeamScreen: Screen(route = "createTeam_screen")
     object SearchScreen: Screen(route = "search_screen")
     object ProfileScreen: Screen(route = "profile_screen")
+    object ViewProfileScreen: Screen(route = "profile_screen/{userId}")
 }
 
 //ViewModel Factory
@@ -62,9 +64,11 @@ val searchScreenViewModelFactory = SearchScreenViewModelFactory(
 val profileViewModelFactory = ProfileViewModelFactory(
     AccountRepository()
 )
+
 val createTeamViewModelFactory = ProfileViewModelFactory(
     AccountRepository()
 )
+
 
 
 @Composable
@@ -100,9 +104,20 @@ fun NavGraph(
             val viewModel: ProfileViewModel = viewModel(factory = profileViewModelFactory)
             ProfileScreen(viewModel = viewModel, navController = navController)
         }
+
         composable(Screen.CreateTeamScreen.route) {
             val viewModel: CreateTeamViewModel = viewModel(factory = createTeamViewModelFactory)
             CreateTeamScreen(viewModel, navController = navController)
+        }
+
+        composable(Screen.ViewProfileScreen.route) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?: ""
+            Log.d("ViewProfileScreen", "userId: $userId")
+            val viewProfileViewModelFactory = ViewProfileViewModelFactory(
+                AccountRepository(), userId
+            )
+            val viewModel: ViewProfileViewModel = viewModel(factory = viewProfileViewModelFactory)
+            ViewProfileScreen(viewModel = viewModel, navController = navController)
         }
     }
 }

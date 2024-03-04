@@ -22,9 +22,11 @@ class ProfileViewModel(private val repository: AccountRepository) : ViewModel() 
 
     init {
         viewModelScope.launch {
+
             val fetchedUser = repository.getUserData()
             user.value = fetchedUser
             username.value = fetchedUser.username
+            Log.d("ProfileViewModel", "User: $fetchedUser")
         }
     }
 
@@ -67,12 +69,37 @@ class ProfileViewModel(private val repository: AccountRepository) : ViewModel() 
     }
 }
 
+class ViewProfileViewModel(private val repository: AccountRepository, private val userId: String) : ViewModel() {
+
+    private val selectedUser = mutableStateOf(User())
+    val selectedUsername = mutableStateOf("")
+
+    init {
+        viewModelScope.launch {
+            Log.d("ViewProfileViewModel", "userId: $userId")
+            val fetchedUser = repository.getUserData(userId)
+            selectedUser.value = fetchedUser
+            selectedUsername.value = fetchedUser.username
+            Log.d("ViewProfileViewModel", "User: $fetchedUser")
+        }
+    }
+}
 
 class ProfileViewModelFactory(private val repository: AccountRepository) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return ProfileViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+class ViewProfileViewModelFactory(private val repository: AccountRepository, private val userId: String) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ViewProfileViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ViewProfileViewModel(repository, userId) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

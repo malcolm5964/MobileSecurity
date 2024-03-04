@@ -43,7 +43,7 @@ fun BottomNavigationBar(navController: NavController) {
             horizontalArrangement = Arrangement.SpaceAround,
             modifier = Modifier.fillMaxWidth()
         ) {
-            IconButton(onClick = { navController.navigate("") }) {
+            IconButton(onClick = { /*navController.navigate("home_screen")*/ }) {
                 Icon(Icons.Filled.Home, contentDescription = "Home")
             }
             IconButton(onClick = { navController.navigate("search_screen") }) {
