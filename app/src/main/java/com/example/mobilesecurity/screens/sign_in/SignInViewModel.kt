@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 
 class SignInViewModel(private val repository: AccountRepository) : ViewModel() {
 
-    val email = MutableStateFlow("aaaaaa@gmail.com")
-    val password = MutableStateFlow("aaaaaa")
+    val email = MutableStateFlow("")
+    val password = MutableStateFlow("")
 
     fun updateEmail(newEmail: String) {
         email.value = newEmail
