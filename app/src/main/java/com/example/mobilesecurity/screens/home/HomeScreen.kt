@@ -46,7 +46,7 @@ fun BottomNavigationBar(navController: NavController) {
             IconButton(onClick = { navController.navigate("") }) {
                 Icon(Icons.Filled.Home, contentDescription = "Home")
             }
-            IconButton(onClick = { navController.navigate("") }) {
+            IconButton(onClick = { navController.navigate("search_screen") }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
             }
             IconButton(onClick = { navController.navigate("profile_screen") }) {
