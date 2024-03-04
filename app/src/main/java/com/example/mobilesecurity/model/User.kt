@@ -1,7 +1,7 @@
 package com.example.mobilesecurity.model.service.firebase
 
 data class User(
-    val id: String = "",
-    val username: String = "",
-    val role: String = ""
+    var id: String = "",
+    var username: String = "",
+    var role: String = ""
 )
