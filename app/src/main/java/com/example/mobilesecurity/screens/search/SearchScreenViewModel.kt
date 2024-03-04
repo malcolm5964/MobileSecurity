@@ -19,11 +19,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SearchScreenViewModel(private val repository: AccountRepository) : ViewModel() {
+class SearchScreenViewModel(private val repository: AccountRepository, private val searchRepository: SearchRepository) : ViewModel() {
     val userID = repository.currentUserId
     var searchQuery by mutableStateOf("")
         private set
-    val searchRepository = SearchRepository()
 
     private val _searchItems = MutableStateFlow<List<SearchItem>>(emptyList())
     val searchItems: StateFlow<List<SearchItem>> = _searchItems
@@ -89,11 +88,11 @@ class SearchScreenViewModel(private val repository: AccountRepository) : ViewMod
             )
 }
 
-class SearchScreenViewModelFactory(private val repository: AccountRepository): ViewModelProvider.Factory {
+class SearchScreenViewModelFactory(private val repository: AccountRepository, private val searchRepository: SearchRepository): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SearchScreenViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SearchScreenViewModel(repository) as T
+            return SearchScreenViewModel(repository, searchRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

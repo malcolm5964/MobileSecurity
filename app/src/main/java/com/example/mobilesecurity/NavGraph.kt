@@ -8,6 +8,7 @@ import com.example.mobilesecurity.screens.sign_in.SignInScreen
 import com.example.mobilesecurity.screens.sign_in.SignInViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobilesecurity.model.AccountRepository
+import com.example.mobilesecurity.model.SearchRepository
 import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModel
 import com.example.mobilesecurity.screens.home.HomeScreen
 import com.example.mobilesecurity.screens.home.HomeScreenViewModel
@@ -55,7 +56,7 @@ val homeScreenViewModelFactory = HomeScreenViewModelFactory(
 )
 
 val searchScreenViewModelFactory = SearchScreenViewModelFactory(
-    AccountRepository()
+    AccountRepository(), SearchRepository()
 )
 
 val profileViewModelFactory = ProfileViewModelFactory(

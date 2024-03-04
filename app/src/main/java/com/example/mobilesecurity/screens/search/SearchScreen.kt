@@ -80,8 +80,8 @@ fun SearchScreen(
                         count = searchResults.size,
                         key = { index -> searchResults[index].id },
                         itemContent = { index ->
-                            val movie = searchResults[index]
-                            MovieListItem(searchItem = movie, navController = navController)
+                            val item = searchResults[index]
+                            SearchListItem(searchItem = item, navController = navController)
                         }
                     )
                 }
@@ -103,7 +103,7 @@ fun SearchScreen(
 }
 
 @Composable
-fun MovieListItem(
+fun SearchListItem(
     modifier: Modifier = Modifier,
     searchItem: SearchItem,
     navController: NavController = rememberNavController()
