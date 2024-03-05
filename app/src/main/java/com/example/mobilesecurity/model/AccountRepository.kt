@@ -90,17 +90,6 @@ class AccountRepository {
             .document(id)
             .set(user)
     }
-    //create new team, on firestore
-    fun addTeamData(id: String, teamName: String, teamMember: List<User>){
-        val team = hashMapOf(
-            "teamName" to teamName,
-            "teamMember" to teamMember
-        )
-        db.collection("team")
-            .document(id)
-            .set(team)
-    }
-
 
     //create new team, on firestore
     fun addTeamData(team: Team){

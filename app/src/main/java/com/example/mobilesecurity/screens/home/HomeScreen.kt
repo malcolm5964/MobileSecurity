@@ -28,14 +28,17 @@ fun HomeScreen(viewModel : HomeScreenViewModel = viewModel(),  navController: Na
     Scaffold(bottomBar = {
         BottomNavigationBar(navController = navController)
     }) { innerPadding ->
-        Text(
-            modifier = Modifier.padding(innerPadding),
-            text = "Example of a scaffold with a bottom app bar."
-        )
-        //add team button
-        IconButton(onClick = { navController.navigate("createTeam_screen") }) {
-            Icon(Icons.Filled.Add, contentDescription = "Home")
+        Column {
+            Text(
+
+                text = "Create Team"
+            )
+            //add team button
+            IconButton(modifier = Modifier.padding(innerPadding),onClick = { navController.navigate("createTeam_screen") }) {
+                Icon(Icons.Filled.Add, contentDescription = "Home")
+            }
         }
+
     }
 
 
