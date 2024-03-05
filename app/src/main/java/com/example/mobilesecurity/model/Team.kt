@@ -2,8 +2,8 @@ package com.example.mobilesecurity.model
 
 data class Team(
     var id: String = "",
-    var name: String = "",
-    var members: List<TeamUsers> = emptyList()
+    var teamName: String = "",
+    var teamMembers: List<TeamUsers> = emptyList()
 )
 
 data class TeamUsers(

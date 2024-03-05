@@ -53,7 +53,7 @@ class SearchScreenViewModel(private val repository: AccountRepository, private v
             val teamSearchItem = teams.map { team ->
                 SearchItem(
                     id = team.id,
-                    name = team.name,
+                    name = team.teamName,
                     type = "Group"
                 )
             }

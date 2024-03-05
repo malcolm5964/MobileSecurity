@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.lang.Exception
+import java.util.UUID
 
 class AccountRepository {
 
@@ -97,6 +98,14 @@ class AccountRepository {
         )
         db.collection("team")
             .document(id)
+            .set(team)
+    }
+
+
+    //create new team, on firestore
+    fun addTeamData(team: Team){
+        db.collection("teams")
+            .document(team.id)
             .set(team)
     }
 

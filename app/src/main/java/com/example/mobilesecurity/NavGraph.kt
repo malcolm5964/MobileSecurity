@@ -65,8 +65,8 @@ val profileViewModelFactory = ProfileViewModelFactory(
     AccountRepository()
 )
 
-val createTeamViewModelFactory = ProfileViewModelFactory(
-    AccountRepository()
+val createTeamViewModelFactory = CreateTeamViewModelFactory(
+    AccountRepository() , SearchRepository()
 )
 
 

@@ -30,8 +30,8 @@ class SearchRepository {
         for (document in querySnapshot.documents) {
             val team = Team().apply {
                 id = document.id
-                name = document.getString("teamName") ?: ""
-                members = document.get("teamMembers") as List<TeamUsers>
+                teamName = document.getString("teamName") ?: ""
+                teamMembers = document.get("teamMembers") as List<TeamUsers>
             }
             teams.add(team)
         }
