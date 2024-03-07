@@ -28,6 +28,9 @@ import com.example.mobilesecurity.screens.sign_up.SignUpViewModelFactory
 import com.example.mobilesecurity.screens.search.SearchScreen
 import com.example.mobilesecurity.screens.createTeam.CreateTeamScreen
 import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModelFactory
+import com.example.mobilesecurity.screens.groupchat.GroupChatScreen
+import com.example.mobilesecurity.screens.groupchat.GroupchatViewModel
+import com.example.mobilesecurity.screens.groupchat.GroupchatViewModelFactory
 import com.example.mobilesecurity.screens.profile.ViewProfileViewModelFactory
 import com.example.mobilesecurity.screens.profile.ViewProfileScreen
 import com.example.mobilesecurity.screens.profile.ViewProfileViewModel
@@ -42,6 +45,7 @@ sealed class Screen(val route: String) {
     object SearchScreen: Screen(route = "search_screen")
     object ProfileScreen: Screen(route = "profile_screen")
     object ViewProfileScreen: Screen(route = "profile_screen/{userId}")
+    object GroupchatScreen: Screen(route = "groupchat_screen")
 }
 
 //ViewModel Factory
@@ -69,6 +73,9 @@ val createTeamViewModelFactory = CreateTeamViewModelFactory(
     AccountRepository() , SearchRepository()
 )
 
+val groupchatViewModelFactory = GroupchatViewModelFactory(
+    AccountRepository()
+)
 
 
 @Composable
@@ -118,6 +125,11 @@ fun NavGraph(
             )
             val viewModel: ViewProfileViewModel = viewModel(factory = viewProfileViewModelFactory)
             ViewProfileScreen(viewModel = viewModel, navController = navController)
+        }
+
+        composable(Screen.GroupchatScreen.route) {
+            val viewModel: GroupchatViewModel = viewModel(factory = groupchatViewModelFactory)
+            GroupChatScreen(viewModel = viewModel, navController = navController)
         }
     }
 }

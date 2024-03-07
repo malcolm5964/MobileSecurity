@@ -3,12 +3,14 @@ package com.example.mobilesecurity.model
 import android.util.Log
 import com.example.mobilesecurity.model.service.firebase.User
 import com.google.firebase.Firebase
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.channels.awaitClose
@@ -23,6 +25,7 @@ import java.util.UUID
 class AccountRepository {
 
     val db = Firebase.firestore
+    data class TeamMessage(val userID: String, val content: String, val timestamp: Timestamp)
 
     val currentUser: Flow<User?>
         get() = callbackFlow {
@@ -120,6 +123,24 @@ class AccountRepository {
             User() // Return a default user in case of an exception
         }
     }
+
+    // todo: function to get message from realtime db
+//    suspend fun getGroupchatMessageData(): List<GroupchatMessage> {
+//        return try {
+//            val messageSnapshot = db.collection("teamMessages").document().get().await()
+//            val groupchatMessageList = mutableListOf<GroupchatMessage>()
+//            for (document in messageSnapshot.documents) {
+//                val userID = document.getString("userID") ?: ""
+//                val content = document.getString("content") ?: ""
+//                val timestamp = document.getTimestamp("timestamp") // Assuming 'timestamp' is a Firestore Timestamp
+//
+//                val groupchatMessage = GroupchatMessage(userID, content, timestamp)
+//                groupchatMessageList.add(groupchatMessage)
+//            }
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
+//    }
 
     suspend fun updateUsername(newUsername: String): Pair<Boolean, String> {
         val userUpdate: Map<String, Any> = mapOf("userName" to newUsername)
