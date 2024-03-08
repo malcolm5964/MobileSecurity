@@ -80,7 +80,7 @@ fun TeamButton(teamID: String, teamName: String, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { navController.navigate("")
+            .clickable { navController.navigate("groupchat_screen/$teamID/$teamName")
             }
             .padding(16.dp)
     ) {

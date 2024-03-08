@@ -3,7 +3,6 @@ package com.example.mobilesecurity.screens.groupchat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.mobilesecurity.model.AccountRepository
-import com.example.mobilesecurity.screens.sign_in.SignInViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class GroupchatViewModel(private val repository: AccountRepository) : ViewModel() {
@@ -15,6 +14,10 @@ class GroupchatViewModel(private val repository: AccountRepository) : ViewModel(
 
     fun writeGroupchatMessage(newGroupchatMessage: String) {
         groupchat_message.value = newGroupchatMessage //todo: write message to realtime db function
+    }
+
+    fun addMessage(value: String, groupChatID: String) {
+
     }
 }
 

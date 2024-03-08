@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import com.example.mobilesecurity.screens.sign_in.SignInScreen
 import com.example.mobilesecurity.screens.sign_in.SignInViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.mobilesecurity.model.AccountRepository
 import com.example.mobilesecurity.model.SearchRepository
 import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModel
@@ -43,7 +45,7 @@ sealed class Screen(val route: String) {
     object SearchScreen: Screen(route = "search_screen")
     object ProfileScreen: Screen(route = "profile_screen")
     object ViewProfileScreen: Screen(route = "profile_screen/{userId}")
-    object GroupchatScreen: Screen(route = "groupchat_screen")
+    object GroupchatScreen: Screen(route = "groupchat_screen/{groupChatID}/{groupChatName}")
 }
 
 //ViewModel Factory
@@ -125,9 +127,21 @@ fun NavGraph(
             ViewProfileScreen(viewModel = viewModel, navController = navController)
         }
 
-        composable(Screen.GroupchatScreen.route) {
+        composable(Screen.GroupchatScreen.route,
+            arguments = listOf(
+                navArgument("groupChatID") {type = NavType.StringType },
+                navArgument("groupChatName") {type = NavType.StringType}
+            )
+        ) {backStackEntry ->
             val viewModel: GroupchatViewModel = viewModel(factory = groupchatViewModelFactory)
-            GroupChatScreen(viewModel = viewModel, navController = navController)
+            val groupChatID = backStackEntry.arguments?.getString("groupChatID")
+            val groupChatName = backStackEntry.arguments?.getString("groupChatName")
+            groupChatID?.let {groupChatID ->
+                groupChatName?.let { groupChatName ->
+                    GroupChatScreen(viewModel = viewModel, navController = navController, groupChatID = groupChatID, groupChatName = groupChatName)
+                }
+            }
+
         }
     }
 }
