@@ -57,9 +57,9 @@ class AccountRepository {
         }
     }
 
-    suspend fun signUp(email: String, username: String, password: String) {
+    suspend fun signUp(email: String, username: String, password: String, role: String) {
         Firebase.auth.createUserWithEmailAndPassword(email, password).await()
-        addUserData(currentUserId, username)
+        addUserData(currentUserId, username, role)
     }
 
     //error in this method
@@ -81,11 +81,11 @@ class AccountRepository {
 
 
     //Add user information on firestore
-    fun addUserData(id: String, name: String) {
+    fun addUserData(id: String, name: String, role: String) {
 
         val user = hashMapOf(
-            "userName" to "$name",
-            "userRole" to "student"
+            "userName" to name,
+            "userRole" to role
         )
 
         //Add new user document
