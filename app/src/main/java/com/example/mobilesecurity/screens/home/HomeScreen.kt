@@ -80,7 +80,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel(), navController: NavC
             }
             // Teams list that shows when expanded
             if (teamsExpanded) {
-                LazyColumn {
+                LazyColumn(modifier = Modifier.height(640.dp)) {
                     items(teams) { team ->
                         if (team.teamMembers.any { it.userId == userID }) {
                             TeamButton(teamID = team.id, teamName = team.teamName, navController = navController)

@@ -72,7 +72,16 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             verticalAlignment = Alignment.CenterVertically
         ) {
             ElevatedButton(
-                onClick = { navController.popBackStack() },
+                onClick =
+                {
+                    Log.d("destination", navController.previousBackStackEntry?.destination?.route.toString())
+                    if (navController.previousBackStackEntry?.destination?.route == "search_screen") {
+                        navController.navigate("search_screen")
+                    }
+                    else {
+                        navController.popBackStack()
+                    }
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Rounded.ArrowBack, contentDescription = "Back Button")
