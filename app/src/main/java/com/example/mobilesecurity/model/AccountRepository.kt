@@ -101,6 +101,12 @@ class AccountRepository {
             .set(team)
     }
 
+    fun addTeamMember(team: Team, userId: String){
+        db.collection("teams")
+            .document(team.id)
+            .update("teamMembers", team.teamMembers + TeamUsers(false, userId))
+    }
+
     suspend fun getUserData(): User {
         return try {
             Log.d("AccountRepository", "Fetching user data for $currentUserId")

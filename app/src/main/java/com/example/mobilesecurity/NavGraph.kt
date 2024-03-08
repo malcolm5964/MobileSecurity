@@ -122,7 +122,7 @@ fun NavGraph(
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             Log.d("ViewProfileScreen", "userId: $userId")
             val viewProfileViewModelFactory = ViewProfileViewModelFactory(
-                AccountRepository(), userId
+                AccountRepository(), userId, SearchRepository()
             )
             val viewModel: ViewProfileViewModel = viewModel(factory = viewProfileViewModelFactory)
             ViewProfileScreen(viewModel = viewModel, navController = navController)
