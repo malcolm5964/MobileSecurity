@@ -137,7 +137,10 @@ fun SignUpScreen(viewModel : SignUpViewModel = viewModel(), navController: NavCo
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
-                .clickable { expanded = true },
+                .border(
+                    BorderStroke(width = 2.dp, color = Purple40),
+                    shape = RoundedCornerShape(50)
+                ).clickable{expanded = true},
             placeholder = { Text("Select Role") },
             trailingIcon = {
                 Icon(
@@ -151,7 +154,9 @@ fun SignUpScreen(viewModel : SignUpViewModel = viewModel(), navController: NavCo
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.CenterHorizontally) // This will align the dropdown to the center, like the TextField above
         ) {
             roles.forEach { role ->
                 DropdownMenuItem(
@@ -160,7 +165,6 @@ fun SignUpScreen(viewModel : SignUpViewModel = viewModel(), navController: NavCo
                         selectedRole = role
                         viewModel.updateRole(role)
                         expanded = false
-
                     }
                 )
             }
