@@ -117,7 +117,7 @@ fun SearchScreen(
             onActiveChange = {},
             placeholder =
             {
-                Text(text = "Search Name or Group Channel")
+                Text(text = "Search Name To Add Member")
             },
             leadingIcon = {
                 Icon(
