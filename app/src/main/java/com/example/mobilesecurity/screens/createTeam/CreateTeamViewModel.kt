@@ -54,7 +54,7 @@ class CreateTeamViewModel(private val repository: AccountRepository, private val
         selectedUsers.add(userID)
         team.teamMembers = selectedUsers.map { userIdInList ->
             TeamUsers(
-                isAdmin = userIdInList == userID,
+                admin = userIdInList == userID,
                 userId = userIdInList
             )
         }

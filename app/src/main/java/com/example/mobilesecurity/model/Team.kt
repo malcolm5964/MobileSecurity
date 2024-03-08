@@ -7,6 +7,6 @@ data class Team(
 )
 
 data class TeamUsers(
-    val isAdmin: Boolean = false,
+    val admin: Boolean = false,
     val userId: String = ""
 )

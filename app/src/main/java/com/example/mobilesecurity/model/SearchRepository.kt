@@ -31,10 +31,20 @@ class SearchRepository {
             val team = Team().apply {
                 id = document.id
                 teamName = document.getString("teamName") ?: ""
-                teamMembers = document.get("teamMembers") as List<TeamUsers>
+                // Deserialize teamMembers array of maps into list of TeamUsers
+                val teamMembersList = mutableListOf<TeamUsers>()
+                val teamMembersArray = document.get("teamMembers") as? List<Map<String, Any>>
+                teamMembersArray?.forEach { teamMemberMap ->
+                    val isAdmin = teamMemberMap["admin"] as? Boolean ?: false
+                    val userId = teamMemberMap["userId"] as? String ?: ""
+                    val teamUser = TeamUsers(isAdmin, userId)
+                    teamMembersList.add(teamUser)
+                }
+                teamMembers = teamMembersList
             }
             teams.add(team)
         }
         return teams
     }
+
 }

@@ -2,7 +2,6 @@ package com.example.mobilesecurity
 
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,7 +24,6 @@ import com.example.mobilesecurity.screens.sign_in.SignInViewModelFactory
 import com.example.mobilesecurity.screens.sign_up.SignUpScreen
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModel
 import com.example.mobilesecurity.screens.sign_up.SignUpViewModelFactory
-import com.example.mobilesecurity.screens.search.SearchScreen
 import com.example.mobilesecurity.screens.createTeam.CreateTeamScreen
 import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModelFactory
 import com.example.mobilesecurity.screens.groupchat.GroupChatScreen
@@ -58,7 +56,7 @@ val signUpViewModelFactory = SignUpViewModelFactory(
 )
 
 val homeScreenViewModelFactory = HomeScreenViewModelFactory(
-    AccountRepository()
+    AccountRepository(), SearchRepository()
 )
 
 val searchScreenViewModelFactory = SearchScreenViewModelFactory(
