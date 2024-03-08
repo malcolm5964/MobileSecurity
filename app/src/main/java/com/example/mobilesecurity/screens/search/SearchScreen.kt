@@ -33,7 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.mobilesecurity.model.SearchItem
-import com.example.mobilesecurity.screens.createTeam.BottomNavigationBar
+import com.example.mobilesecurity.BottomNavigationBar
 
 @Composable
 fun SearchScreen(modifier: Modifier = Modifier, viewModel: SearchScreenViewModel = viewModel(), navController: NavController = rememberNavController()) {
@@ -142,25 +142,5 @@ fun SearchListItem(
             tint = MaterialTheme.colorScheme.onSurface,
             contentDescription = null
         )
-    }
-}
-
-@Composable
-fun BottomNavigationBar(navController: NavController) {
-    BottomAppBar {
-        Row(
-            horizontalArrangement = Arrangement.SpaceAround,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(onClick = { navController.navigate("home_screen") }) {
-                Icon(Icons.Filled.Home, contentDescription = "Home")
-            }
-            IconButton(onClick = { navController.navigate("search_screen") }) {
-                Icon(Icons.Filled.Search, contentDescription = "Search")
-            }
-            IconButton(onClick = { navController.navigate("profile_screen") }) {
-                Icon(Icons.Filled.Person, contentDescription = "Profile")
-            }
-        }
     }
 }
