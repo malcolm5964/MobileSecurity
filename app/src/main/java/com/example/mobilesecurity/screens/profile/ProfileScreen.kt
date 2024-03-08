@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mobilesecurity.R
-import com.example.mobilesecurity.screens.home.BottomNavigationBar
+import com.example.mobilesecurity.BottomNavigationBar
 import com.example.mobilesecurity.ui.theme.Purple40
 
 @Composable
