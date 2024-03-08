@@ -1,13 +1,16 @@
 package com.example.mobilesecurity.screens.home
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,6 +19,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomAppBar
@@ -27,6 +32,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -39,39 +48,57 @@ import com.example.mobilesecurity.screens.sign_in.SignInViewModel
 
 
 @Composable
-fun HomeScreen(viewModel : HomeScreenViewModel = viewModel(),  navController: NavController, modifier: Modifier = Modifier) {
-
+fun HomeScreen(viewModel: HomeScreenViewModel = viewModel(), navController: NavController, modifier: Modifier = Modifier) {
     val teams = viewModel.teams
     val userID = viewModel.userID
+    // State to control the expansion of the Teams dropdown, defaulting to expanded
+    var teamsExpanded by remember { mutableStateOf(true) } // Set to true for default expanded state
 
-
-    Scaffold(bottomBar = {
-        BottomNavigationBar(navController = navController)
-    }) { innerPadding ->
-        Column {
-            Text(
-                text = "Create Team"
-            )
-            //add team button
-            IconButton(modifier = Modifier.padding(innerPadding),onClick = { navController.navigate("createTeam_screen") }) {
-                Icon(Icons.Filled.Add, contentDescription = "Home")
-            }
-
-            LazyColumn(
-                Modifier
-                    .weight(1f)
+    Scaffold(bottomBar = { BottomNavigationBar(navController = navController) }) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            // Header for Teams dropdown
+            Row(
+                modifier = Modifier
                     .fillMaxWidth()
+                    .clickable { teamsExpanded = !teamsExpanded } // Toggle expansion on click
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(teams) {Team ->
-                    if(Team.teamMembers.any { it.userId == "$userID" }){
-                        Log.d("Check list", "${Team}")
-                        TeamButton(teamID = Team.id, teamName = Team.teamName,navController = navController)
-                   }
-
+                Text(
+                    text = "Teams",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    imageVector = if (teamsExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    contentDescription = if (teamsExpanded) "Collapse" else "Expand"
+                )
+            }
+            // Teams list that shows when expanded
+            if (teamsExpanded) {
+                LazyColumn {
+                    items(teams) { team ->
+                        if (team.teamMembers.any { it.userId == userID }) {
+                            TeamButton(teamID = team.id, teamName = team.teamName, navController = navController)
+                        }
+                    }
                 }
             }
+            Spacer(modifier = Modifier.weight(1f)) // This pushes the button to the bottom of the screen
+            // Create Team button at the bottom of the screen
+            Button(
+                onClick = { navController.navigate("createTeam_screen") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text("Create Team")
+            }
         }
-
     }
 }
 
