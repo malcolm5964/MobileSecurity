@@ -29,9 +29,9 @@ import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModelFactory
 import com.example.mobilesecurity.screens.groupchat.GroupChatScreen
 import com.example.mobilesecurity.screens.groupchat.GroupchatViewModel
 import com.example.mobilesecurity.screens.groupchat.GroupchatViewModelFactory
-import com.example.mobilesecurity.screens.profile.ViewProfileViewModelFactory
-import com.example.mobilesecurity.screens.profile.ViewProfileScreen
-import com.example.mobilesecurity.screens.profile.ViewProfileViewModel
+import com.example.mobilesecurity.screens.view_profile.ViewProfileScreen
+import com.example.mobilesecurity.screens.view_profile.ViewProfileViewModel
+import com.example.mobilesecurity.screens.view_profile.ViewProfileViewModelFactory
 
 
 sealed class Screen(val route: String) {
