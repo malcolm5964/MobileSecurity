@@ -31,12 +31,16 @@ class SignUpViewModel(private val repository: AccountRepository) : ViewModel() {
         password.value = newPassword
     }
 
+    fun updateRole(newRole: String) {
+        role.value = newRole
+    }
+
     fun updateConfirmPassword(newConfirmPassword: String) {
         confirmPassword.value = newConfirmPassword
     }
 
     fun onSignUpClick(navController: NavController) = viewModelScope.launch {
-        repository.signUp(email.value, username.value, password.value )
+        repository.signUp(email.value, username.value, password.value, role.value)
         navController.navigate("home_screen")
     }
 }
