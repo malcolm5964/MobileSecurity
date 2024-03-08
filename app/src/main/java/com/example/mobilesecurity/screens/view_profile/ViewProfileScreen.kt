@@ -1,25 +1,34 @@
-package com.example.mobilesecurity.screens.profile
+package com.example.mobilesecurity.screens.view_profile
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mobilesecurity.R
 import com.example.mobilesecurity.screens.home.BottomNavigationBar
+import com.example.mobilesecurity.screens.profile.ViewProfileViewModel
 import com.example.mobilesecurity.ui.theme.Purple40
 
 @Composable
-fun ProfileScreen(viewModel: ProfileViewModel = viewModel(), navController: NavController, modifier: Modifier = Modifier) {
+fun ViewProfileScreen(viewModel: ViewProfileViewModel = viewModel(), navController: NavController, modifier: Modifier = Modifier) {
     Scaffold(
         bottomBar = {
             BottomNavigationBar(navController = navController)
@@ -56,48 +65,12 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel(), navController: NavC
                                 shape = RoundedCornerShape(50)
                             ),
                         singleLine = true,
-                        value = viewModel.username.value,
-                        onValueChange = { viewModel.username.value = it },
-                        label = { Text("New Username") }
+                        value = viewModel.selectedUsername.value,
+                        onValueChange = { viewModel.selectedUsername.value = it },
+                        enabled = false
                     )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Password Field
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "Password", modifier = Modifier.padding(start = 16.dp, end = 16.dp))
-
-                    TextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(BorderStroke(width = 2.dp, color = Purple40), shape = RoundedCornerShape(50)),
-                        singleLine = true,
-                        value = viewModel.password.value,
-                        onValueChange = { viewModel.password.value = it },
-                        label = { Text("New Password") },
-                        visualTransformation = PasswordVisualTransformation()
-                    )
-                }
-            }
-
-            // Buttons at the bottom
-            Column {
-                Button(
-                    onClick = {
-                        viewModel.updateUserInfo(viewModel.username.value, viewModel.password.value)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Text("Update")
                 }
             }
         }
     }
 }
-
