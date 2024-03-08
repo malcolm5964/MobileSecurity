@@ -1,6 +1,9 @@
 package com.example.mobilesecurity.screens.groupchat
 
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,25 +24,38 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
+import com.example.mobilesecurity.model.Message
+import com.example.mobilesecurity.ui.theme.PurpleGrey80
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController: NavController, groupChatID: String, groupChatName: String, modifier: Modifier = Modifier) {
 
+    LaunchedEffect(groupChatID) {
+        viewModel.getGroupChatMessages("$groupChatID")
+    }
+
     var messageInput = remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val groupChatMessages by viewModel.groupChatMessages.collectAsState()
 
     Column(
         modifier = modifier
@@ -86,7 +102,10 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
                 .fillMaxWidth()
                 .testTag("chatList")
         ) {
-
+            items(groupChatMessages) {message ->
+                Log.d("Chat Message", "$message")
+                ChatMessageItem(message)
+            }
         }
 
         Divider(
@@ -96,44 +115,6 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
                 .fillMaxWidth()
                 .width(1.dp)
         )
-
-/*        Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                *//*OutlinedTextField( //todo: retrieve user id from session
-                    singleLine = true,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp, 4.dp)
-                        .border(
-                            BorderStroke(width = 2.dp, color = Color.Black),
-                            shape = RoundedCornerShape(50)
-                        ),
-                    value = null, //todo
-                    //onValueChange = { viewModel.writeGroupchatMessage(it) }, //todo
-                    placeholder = { Text("Message Team Name") }, //todo: get team name from db
-                )*//*
-
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                ElevatedButton(
-                    onClick = { *//*TODO*//* },
-                    modifier = Modifier.width(36.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Icon(Icons.Rounded.Send, contentDescription = "Send Message")
-                }
-            }
-        }*/
-
 
         Row (
             verticalAlignment = Alignment.CenterVertically,
@@ -163,8 +144,26 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
     }
 }
 
-/*
 @Composable
-fun groupchatMessageItem(groupchatMessage: GroupchatMessage){ //todo
-    Text(text = "${groupchatMessage.userId}: ${groupchatMessage.content}")
-}*/
+fun ChatMessageItem(message: Message) {
+    Column {
+        Box(
+            modifier = Modifier
+                .align(if (message.userID == "3RkfEdhAh8R7Nle3b4iWsiFMn4O2") Alignment.End else Alignment.Start)
+                .clip(
+                    RoundedCornerShape(
+                        topStart = 48f,
+                        topEnd = 48f,
+                        bottomStart = if (message.userID == "3RkfEdhAh8R7Nle3b4iWsiFMn4O2") 48f else 0f,
+                        bottomEnd = if (message.userID == "3RkfEdhAh8R7Nle3b4iWsiFMn4O2") 0f else 48f
+                    )
+                )
+                .background(PurpleGrey80)
+                .padding(16.dp)
+        ) {
+            Text(text = message.content.toString())
+        }
+    }
+
+}
+

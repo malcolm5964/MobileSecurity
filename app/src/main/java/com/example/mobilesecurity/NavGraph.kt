@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.mobilesecurity.model.AccountRepository
+import com.example.mobilesecurity.model.MessageRepository
 import com.example.mobilesecurity.model.SearchRepository
 import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModel
 import com.example.mobilesecurity.screens.home.HomeScreen
@@ -74,7 +75,7 @@ val createTeamViewModelFactory = CreateTeamViewModelFactory(
 )
 
 val groupchatViewModelFactory = GroupchatViewModelFactory(
-    AccountRepository()
+    AccountRepository(), MessageRepository()
 )
 
 
