@@ -72,7 +72,7 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             verticalAlignment = Alignment.CenterVertically
         ) {
             ElevatedButton(
-                onClick = { /*TODO: route to previous page*/ },
+                onClick = { navController.popBackStack() },
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Rounded.ArrowBack, contentDescription = "Back Button")
@@ -120,25 +120,41 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 8.dp)
         ){
-            TextField(
-                value = messageInput.value,
-                onValueChange = {messageInput.value = it},
-                modifier = Modifier
-                    .testTag("inputRepo"),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(
-                    onDone = { keyboardController?.hide() })
-            )
+            //if user is not in team, hide input field
+            Log.d("group chat team current user id", viewModel.currentUserId)
+            viewModel.teamId.value = groupChatID
+            Log.d("group chat team id", viewModel.teamId.value)
+            viewModel.getTeam(viewModel.teamId.value)
+            val team = viewModel.team.collectAsState()
+            Log.d("group chat team", team.toString())
+            Log.d("isCurrentUserInsideTeam", viewModel.isCurrentUserInsideTeam.value.toString())
+            if (viewModel.isCurrentUserInsideTeam.value) {
+                TextField(
+                    value = messageInput.value,
+                    onValueChange = {messageInput.value = it},
+                    modifier = Modifier
+                        .testTag("inputRepo"),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = { keyboardController?.hide() })
+                )
 
 
-            Button(
-                onClick = {
-                    viewModel.addMessage(messageInput.value, groupChatID)
-                    keyboardController?.hide()},
-                Modifier
-                    .testTag("chatSend")
-            ) {
-                Text(text = "SEND")
+                Button(
+                    onClick = {
+                        viewModel.addMessage(messageInput.value, groupChatID)
+                        keyboardController?.hide()},
+                    Modifier
+                        .testTag("chatSend")
+                ) {
+                    Text(text = "SEND")
+                }
+            }
+            else
+            {
+                Button(onClick = { viewModel.addTeamMember() }) {
+                    Text(text = "Join Team to send messages")
+                }
             }
         }
     }

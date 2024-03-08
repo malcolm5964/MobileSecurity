@@ -46,11 +46,17 @@ class SearchScreenViewModel(private val repository: AccountRepository, private v
             addUserSearchItems(userSearchItem)
 
             val teams = searchRepository.getAllTeams()
+
+            //remove teams they have joined from the list
+            val otherTeams = teams.filter { team ->
+                team.teamMembers.none { it.userId == userID }
+            }
+
             for (team in teams) {
                 Log.d("SearchScreenViewModel - teams", team.toString())
             }
 
-            val teamSearchItem = teams.map { team ->
+            val teamSearchItem = otherTeams.map { team ->
                 SearchItem(
                     id = team.id,
                     name = team.teamName,
