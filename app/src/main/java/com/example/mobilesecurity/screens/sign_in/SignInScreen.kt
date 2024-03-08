@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -48,11 +50,13 @@ fun SignInScreen(viewModel : SignInViewModel = viewModel(), navController: NavCo
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.tum_0),
+            painter = painterResource(id = R.drawable.photo_2024_03_08_15_21_18),
             contentDescription = "Auth image",
             modifier = modifier
                 .fillMaxWidth()
                 .padding(16.dp, 4.dp)
+                .width(300.dp)
+                .height(300.dp)
         )
 
         Spacer(modifier = Modifier
