@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.mobilesecurity.model.SearchItem
+import com.example.mobilesecurity.screens.search.SearchScreen
 
 
 @Composable
@@ -76,14 +77,118 @@ fun CreateTeamScreen(viewModel: CreateTeamViewModel = viewModel(), navController
             ) {
                 Text("Create Team")
             }
+
+            SearchScreen(
+                searchQuery = viewModel.searchQuery,
+                searchResults = searchResults,
+                onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+                navController = navController,
+                innerPadding = innerPadding,
+                viewModel = viewModel
+            )
+
         }
 
     }
 }
 
-@Composable
-fun teamList() {
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchScreen(
+    searchQuery: String,
+    searchResults: List<SearchItem>,
+    onSearchQueryChange: (String) -> Unit,
+    navController: NavController = rememberNavController(),
+    innerPadding: PaddingValues,
+    viewModel: CreateTeamViewModel = viewModel()
+) {
+    Column(
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(innerPadding)
+    ) {
+        SearchBar(
+            query = searchQuery,
+            onQueryChange = onSearchQueryChange,
+            onSearch = {},
+            active = true,
+            onActiveChange = {},
+            placeholder =
+            {
+                Text(text = "Search Name or Group Channel")
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    contentDescription = null
+                )
+            },
+            content = {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(32.dp),
+                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(
+                        count = searchResults.size,
+                        key = { index -> searchResults[index].id },
+                        itemContent = { index ->
+                            val item = searchResults[index]
+                            SearchListItem(searchItem = item, navController = navController, viewModel = viewModel)
+                        }
+                    )
+                }
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { onSearchQueryChange("") }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            contentDescription = "Clear search"
+                        )
+                    }
+                }
+            },
+            tonalElevation = 0.dp
+        )
+    }
+}
+
+@Composable
+fun SearchListItem(
+    modifier: Modifier = Modifier,
+    searchItem: SearchItem,
+    navController: NavController = rememberNavController(),
+    viewModel: CreateTeamViewModel = viewModel()
+) {
+    var checked by remember {
+        mutableStateOf(false)
+    }
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable
+            {
+                /*TODO: Navigate to user profile page or group page*/
+            }
+    ) {
+        Text(text = if (searchItem.type == "Group") "# " + searchItem.name else searchItem.name)
+        Checkbox(checked = checked, onCheckedChange = {
+            checked = it
+            if (checked)
+            {
+                viewModel.addUserToSelected(searchItem.id)
+            }
+            else if (!checked) {
+                viewModel.removeUserFromSelected(searchItem.id)
+            }
+        })
+    }
 }
 
 
