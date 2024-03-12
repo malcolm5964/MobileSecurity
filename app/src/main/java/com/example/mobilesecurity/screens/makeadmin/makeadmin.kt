@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons.Default
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,10 +35,16 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.firebase.firestore.FirebaseFirestore
 
-data class UserData(
+data class teamMemberData(
+    val userId: String,
+    val admin: Boolean,
+    var userName: String = "", // Add userName field
+    var userRole: String = ""  // Add userRole field
+)
+
+data class userData(
     val userName: String,
-    val userRole: String,
-    val userAdmin: Boolean
+    val userRole: String
 )
 
 
@@ -50,31 +57,56 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavCon
     val userIsAdmin = true
     var chatGroupName by remember { mutableStateOf("") } // chat group name
     var searchText by remember { mutableStateOf(TextFieldValue()) }
-    var teamMembers by remember { mutableStateOf<List<UserData>>(emptyList()) }
+    var teamMembers by remember { mutableStateOf<List<teamMemberData>>(emptyList()) }
+    var userDataMap by remember { mutableStateOf<Map<String, userData>>(emptyMap()) }
 
     val db = FirebaseFirestore.getInstance()
 
     // Fetch team data from Firestore
-    val teamDocumentRef = db.collection("teams").document("1") // REMEMBER TO CHANGE TO USE MUTABLESTATE ONCE CHAT IS DONE
+    val teamDocumentRef = db.collection("teams")
+        .document("8b14b87a-9277-45fd-a7e9-8a9797da2a00") // REMEMBER TO CHANGE TO USE MUTABLESTATE ONCE CHAT IS DONE
     teamDocumentRef.get().addOnSuccessListener { documentSnapshot ->
         if (documentSnapshot != null && documentSnapshot.exists()) {
             // Document exists, extract team name and members
             chatGroupName = documentSnapshot.getString("teamName") ?: ""
-            val members = documentSnapshot.get("teamMembers") as? List<Map<String, Any>> ?: emptyList()
+            val members =
+                documentSnapshot.get("teamMembers") as? List<Map<String, Any>> ?: emptyList()
             teamMembers = members.map {
-                UserData(
-                    userName = it["userName"] as? String ?: "",
-                    userRole = it["userRole"] as? String ?: "",
-                    userAdmin = it["userAdmin"] as? Boolean ?: false
+                teamMemberData(
+                    userId = it["userId"] as? String ?: "",
+                    admin = it["admin"] as? Boolean ?: false
                 )
+            }
+
+            // Fetch user data for all users
+            val userIds = teamMembers.map { it.userId }
+            val userDocumentRefs = userIds.map { db.collection("users").document(it) }
+            userDocumentRefs.forEachIndexed { index, userDocumentRef ->
+                userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        val userName = documentSnapshot.getString("userName") ?: ""
+                        val userRole = documentSnapshot.getString("userRole") ?: ""
+                        // Update the userDataMap with fetched user data
+                        userDataMap = userDataMap + (userIds[index] to userData(userName, userRole))
+                    } else {
+                        // Handle document not found or other errors
+                    }
+                }.addOnFailureListener { exception ->
+                    // Handle error
+                }
             }
         } else {
             // Document does not exist or has been deleted
-            // Handle error
+            // Handle error gracefully
+            // For example, you can show a message indicating that the team data is not available
+            teamMembers = emptyList() // Set teamMembers to empty list
+            chatGroupName =
+                "Team Data Not Available" // Set chatGroupName to indicate data is not available
         }
     }.addOnFailureListener { exception ->
         // Error fetching team data
-        // Handle error
+        // Handle error gracefully
+        // For example, you can show a message indicating that the team data could not be fetched
     }
 
     Column(
@@ -113,63 +145,82 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavCon
 
         LazyColumn {
             items(teamMembers.filter {
-                it.userName.contains(searchText.text, ignoreCase = true) ||
-                        it.userRole.contains(searchText.text, ignoreCase = true)
-            }) { userData ->
-                Row(
-                    modifier = Modifier.padding(vertical = 7.dp)
-                ) {
-                    // Profile picture circle
-                    Image(
-                        painter = painterResource(id = R.drawable.tum_0), // Change to your image resource
-                        contentDescription = "Profile Picture",
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(CircleShape)
-                    )
-                    // Spacer between profile picture and text
-                    Spacer(modifier = Modifier.width(16.dp))
-                    // Display name and profile description
-                    Column {
-                        Text(
-                            text = userData.userName,
-                            fontSize = 25.sp,
-                            overflow = TextOverflow.Ellipsis
+                it.userId.contains(searchText.text, ignoreCase = true)
+            }) { member ->
+                val userData = userDataMap[member.userId]
+                if (userData?.userName?.isNotBlank() == true) { // Check if user name is not empty
+                    Row(
+                        modifier = Modifier.padding(vertical = 7.dp)
+                    ) {
+                        // Profile picture circle
+                        Image(
+                            painter = painterResource(id = R.drawable.tum_0), // Change to your image resource
+                            contentDescription = "Profile Picture",
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
                         )
-                        Text(
-                            text = userData.userRole,
-                            fontSize = 18.sp
-                        )
-                    }
-                    // Spacer between text and button
-                    Spacer(modifier = Modifier.weight(1f))
-                    // Button
-                    if (userIsAdmin && !userData.userAdmin) {
-                        Button(
-                            onClick = {
-                                // Update Firestore document
-                                db.collection("teams").document("1").update("teamMembers", teamMembers.map {
-                                    if (it.userName == userData.userName) {
-                                        it.copy(userAdmin = true) // Update userAdmin to true for the selected user
-                                    } else {
-                                        it
+                        // Spacer between profile picture and text
+                        Spacer(modifier = Modifier.width(16.dp))
+                        // Display name and profile description
+                        Column {
+                            userData.let {
+                                Text(
+                                    text = it?.userName ?: "",
+                                    fontSize = 25.sp, //25 default
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                // Add user role if needed
+                                Text(
+                                    text = it?.userRole ?: "",
+                                    fontSize = 18.sp
+                                )
+                            }
+                        }
+                        // Spacer between text and button
+                        Spacer(modifier = Modifier.weight(1f))
+                        // Button
+                        if (userIsAdmin && !member.admin) {
+                            Button(
+                                onClick = {
+                                    // Update Firestore document to set admin to true for the selected user
+                                    val docRef = db.collection("teams").document("8b14b87a-9277-45fd-a7e9-8a9797da2a00")
+                                    docRef.get().addOnSuccessListener { documentSnapshot ->
+                                        if (documentSnapshot != null && documentSnapshot.exists()) {
+                                            val teamMembersList = documentSnapshot.get("teamMembers") as? List<Map<String, Any>> ?: emptyList()
+                                            val updatedTeamMembersList = teamMembersList.map { teamMember ->
+                                                if (teamMember["userId"] == member.userId) {
+                                                    mapOf(
+                                                        "userId" to teamMember["userId"],
+                                                        "admin" to true
+                                                    )
+                                                } else {
+                                                    teamMember
+                                                }
+                                            }
+                                            docRef.update("teamMembers", updatedTeamMembersList)
+                                                .addOnSuccessListener {
+                                                    // Update local state to reflect the change
+                                                    teamMembers = teamMembers.map { teamMember ->
+                                                        if (teamMember.userId == member.userId) {
+                                                            teamMember.copy(admin = true)
+                                                        } else {
+                                                            teamMember
+                                                        }
+                                                    }
+                                                }
+                                                .addOnFailureListener { exception ->
+                                                    // Handle error
+                                                }
+                                        }
                                     }
-                                })
-
-                                // Update local state to reflect the change
-                                teamMembers = teamMembers.map {
-                                    if (it.userName == userData.userName) {
-                                        it.copy(userAdmin = true)
-                                    } else {
-                                        it
-                                    }
+                                },
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(text = "Make")
+                                    Text(text = "Admin")
                                 }
-                            },
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "Make")
-                                Text(text = "Admin")
                             }
                         }
                     }
@@ -177,4 +228,5 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavCon
             }
         }
     }
+
 }
