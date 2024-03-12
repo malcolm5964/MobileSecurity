@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mobilesecurity.R
-import com.example.mobilesecurity.screens.home.BottomNavigationBar
+import com.example.mobilesecurity.BottomNavigationBar
 import com.example.mobilesecurity.ui.theme.Purple40
 
 @Composable
@@ -33,11 +33,13 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel(), navController: NavC
         ) {
             Column {
                 Image(
-                    painter = painterResource(id = R.drawable.tum_0),
+                    painter = painterResource(id = R.drawable.photo_2024_03_08_15_21_18),
                     contentDescription = "Auth image",
                     modifier = modifier
                         .fillMaxWidth()
                         .padding(16.dp, 4.dp)
+                        .width(300.dp)
+                        .height(300.dp)
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))

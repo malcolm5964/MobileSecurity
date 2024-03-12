@@ -57,9 +57,9 @@ class AccountRepository {
         }
     }
 
-    suspend fun signUp(email: String, username: String, password: String) {
+    suspend fun signUp(email: String, username: String, password: String, role: String) {
         Firebase.auth.createUserWithEmailAndPassword(email, password).await()
-        addUserData(currentUserId, username)
+        addUserData(currentUserId, username, role)
     }
 
     //error in this method
@@ -81,11 +81,11 @@ class AccountRepository {
 
 
     //Add user information on firestore
-    fun addUserData(id: String, name: String) {
+    fun addUserData(id: String, name: String, role: String) {
 
         val user = hashMapOf(
-            "userName" to "$name",
-            "userRole" to "student"
+            "userName" to name,
+            "userRole" to role
         )
 
         //Add new user document
@@ -99,6 +99,21 @@ class AccountRepository {
         db.collection("teams")
             .document(team.id)
             .set(team)
+    }
+
+    fun addTeamMember(team: Team, userId: String){
+        db.collection("teams")
+            .document(team.id)
+            .update("teamMembers", team.teamMembers + TeamUsers(false, userId))
+    }
+
+    suspend fun getTeamData(teamId: String): Team {
+        return try {
+            val documentSnapshot = db.collection("teams").document(teamId).get().await()
+            Team(documentSnapshot.id, documentSnapshot.getString("teamName") ?: "", documentSnapshot.get("teamMembers") as List<TeamUsers>)
+        } catch (e: Exception) {
+            Team()
+        }
     }
 
     suspend fun getUserData(): User {

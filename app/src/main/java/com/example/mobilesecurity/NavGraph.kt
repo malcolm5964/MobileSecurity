@@ -8,7 +8,10 @@ import androidx.navigation.compose.composable
 import com.example.mobilesecurity.screens.sign_in.SignInScreen
 import com.example.mobilesecurity.screens.sign_in.SignInViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.example.mobilesecurity.model.AccountRepository
+import com.example.mobilesecurity.model.MessageRepository
 import com.example.mobilesecurity.model.SearchRepository
 import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModel
 import com.example.mobilesecurity.screens.home.HomeScreen
@@ -43,7 +46,7 @@ sealed class Screen(val route: String) {
     object SearchScreen: Screen(route = "search_screen")
     object ProfileScreen: Screen(route = "profile_screen")
     object ViewProfileScreen: Screen(route = "profile_screen/{userId}")
-    object GroupchatScreen: Screen(route = "groupchat_screen")
+    object GroupchatScreen: Screen(route = "groupchat_screen/{groupChatID}/{groupChatName}")
 }
 
 //ViewModel Factory
@@ -72,7 +75,7 @@ val createTeamViewModelFactory = CreateTeamViewModelFactory(
 )
 
 val groupchatViewModelFactory = GroupchatViewModelFactory(
-    AccountRepository()
+    AccountRepository(), MessageRepository()
 )
 
 
@@ -119,15 +122,27 @@ fun NavGraph(
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             Log.d("ViewProfileScreen", "userId: $userId")
             val viewProfileViewModelFactory = ViewProfileViewModelFactory(
-                AccountRepository(), userId
+                AccountRepository(), userId, SearchRepository()
             )
             val viewModel: ViewProfileViewModel = viewModel(factory = viewProfileViewModelFactory)
             ViewProfileScreen(viewModel = viewModel, navController = navController)
         }
 
-        composable(Screen.GroupchatScreen.route) {
+        composable(Screen.GroupchatScreen.route,
+            arguments = listOf(
+                navArgument("groupChatID") {type = NavType.StringType },
+                navArgument("groupChatName") {type = NavType.StringType}
+            )
+        ) {backStackEntry ->
             val viewModel: GroupchatViewModel = viewModel(factory = groupchatViewModelFactory)
-            GroupChatScreen(viewModel = viewModel, navController = navController)
+            val groupChatID = backStackEntry.arguments?.getString("groupChatID")
+            val groupChatName = backStackEntry.arguments?.getString("groupChatName")
+            groupChatID?.let {groupChatID ->
+                groupChatName?.let { groupChatName ->
+                    GroupChatScreen(viewModel = viewModel, navController = navController, groupChatID = groupChatID, groupChatName = groupChatName)
+                }
+            }
+
         }
     }
 }
