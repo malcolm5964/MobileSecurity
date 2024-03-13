@@ -46,9 +46,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import com.example.mobilesecurity.model.Message
 import com.example.mobilesecurity.ui.theme.PurpleGrey80
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -107,7 +112,13 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             }
         }
 
-        Divider(thickness = 2.dp)
+        Divider(
+            thickness = 1.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .width(1.dp)
+                .padding(0.dp, 0.dp, 0.dp, 8.dp)
+        )
 
         //todo: add scrollable list to display chat messages from realtime db
         LazyColumn(
@@ -125,10 +136,10 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
 
         Divider(
             thickness = 1.dp,
-            color = Color.Black,
             modifier = Modifier
                 .fillMaxWidth()
                 .width(1.dp)
+                .padding(0.dp, 8.dp, 0.dp, 0.dp)
         )
 
         Row (
@@ -183,10 +194,13 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
 
 @Composable
 fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
-    Column {
+    Column(
+        modifier = Modifier.padding(0.dp, 2.dp)
+    ) {
         Box(
             modifier = Modifier
-                .align(if (message.userID == viewModel.userID) Alignment.End else Alignment.Start)
+                //.align(if (message.userID == viewModel.userID) Alignment.End else Alignment.Start)
+                .fillMaxWidth()
                 .clip(
                     RoundedCornerShape(
                         topStart = 48f,
@@ -199,11 +213,37 @@ fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
                 .padding(16.dp)
         ) {
             Column {
-//                Text(text = message.userID.toString())
-//                Spacer(modifier = Modifier.padding(1.dp))
-                Text(text = message.content.toString())
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = message.username.toString(),
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(
+                        modifier = Modifier.padding(1.dp)
+                    )
+                    Text(
+                        textAlign = TextAlign.End,
+                        text = formatTimestamp(message.timestamp),
+                        color = Color.Gray
+                    )
+                }
+                Spacer(
+                    modifier = Modifier.padding(1.dp)
+                )
+                Text(
+                    text = message.content.toString()
+                )
             }
         }
     }
+}
+
+fun formatTimestamp(timestamp: Date?): String {
+    timestamp ?: return ""
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    return dateFormat.format(timestamp)
 }
 
