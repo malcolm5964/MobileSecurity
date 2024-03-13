@@ -123,18 +123,20 @@ fun SearchListItem(
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = modifier.fillMaxWidth().clickable
-        {
-            /*TODO: Navigate to user profile page or group page*/
-            if (searchItem.type == "Group") {
-                // navController.navigate("group/${searchItem.id}")
-                navController.navigate("")
-            } else {
-                // navController.navigate("user/${searchItem.id}")
-                val userId = searchItem.id
-                navController.navigate("profile_screen/$userId")
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable
+            {
+                /*TODO: Navigate to user profile page or group page*/
+                if (searchItem.type == "Group") {
+                    // navController.navigate("group/${searchItem.id}")
+                    navController.navigate("groupchat_screen/${searchItem.id}/${searchItem.name}")
+                } else {
+                    // navController.navigate("user/${searchItem.id}")
+                    val userId = searchItem.id
+                    navController.navigate("profile_screen/$userId")
+                }
             }
-        }
     ) {
         Text(text = if (searchItem.type == "Group") "# " + searchItem.name else searchItem.name)
         Icon(

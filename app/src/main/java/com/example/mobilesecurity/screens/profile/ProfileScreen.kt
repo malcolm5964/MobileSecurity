@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -46,7 +47,8 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel(), navController: NavC
 
                 // Username Field
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(4.dp)
                 ) {
                     Text(text = "Username", modifier = Modifier.padding(start = 16.dp, end = 16.dp))
 
@@ -68,14 +70,18 @@ fun ProfileScreen(viewModel: ProfileViewModel = viewModel(), navController: NavC
 
                 // Password Field
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(4.dp)
                 ) {
                     Text(text = "Password", modifier = Modifier.padding(start = 16.dp, end = 16.dp))
 
                     TextField(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(BorderStroke(width = 2.dp, color = Purple40), shape = RoundedCornerShape(50)),
+                            .border(
+                                BorderStroke(width = 2.dp, color = Purple40),
+                                shape = RoundedCornerShape(50)
+                            ),
                         singleLine = true,
                         value = viewModel.password.value,
                         onValueChange = { viewModel.password.value = it },

@@ -120,13 +120,5 @@ fun SignInScreen(viewModel : SignInViewModel = viewModel(), navController: NavCo
         TextButton(onClick = { navController.navigate("signup_screen") }) {
             Text(text = "Don't have an account? Click here to Sign Up!", fontSize = 16.sp)
         }
-
-        // todo: remove this after testing done
-        TextButton(onClick = { navController.navigate("groupchat_screen") }) {
-            Text(text = "Groupchat", fontSize = 16.sp)
-        }
-        TextButton(onClick = { navController.navigate("home_screen") }) {
-            Text(text = "Home", fontSize = 16.sp)
-        }
     }
 }

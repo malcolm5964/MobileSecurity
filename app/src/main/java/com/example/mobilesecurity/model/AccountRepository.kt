@@ -107,6 +107,15 @@ class AccountRepository {
             .update("teamMembers", team.teamMembers + TeamUsers(false, userId))
     }
 
+    suspend fun getTeamData(teamId: String): Team {
+        return try {
+            val documentSnapshot = db.collection("teams").document(teamId).get().await()
+            Team(documentSnapshot.id, documentSnapshot.getString("teamName") ?: "", documentSnapshot.get("teamMembers") as List<TeamUsers>)
+        } catch (e: Exception) {
+            Team()
+        }
+    }
+
     suspend fun getUserData(): User {
         return try {
             Log.d("AccountRepository", "Fetching user data for $currentUserId")

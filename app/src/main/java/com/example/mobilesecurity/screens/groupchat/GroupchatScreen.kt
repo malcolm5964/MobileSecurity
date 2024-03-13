@@ -1,11 +1,14 @@
 package com.example.mobilesecurity.screens.groupchat
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -21,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +35,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -72,7 +77,16 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             verticalAlignment = Alignment.CenterVertically
         ) {
             ElevatedButton(
-                onClick = { /*TODO: route to previous page*/ },
+                onClick =
+                {
+                    Log.d("destination", navController.previousBackStackEntry?.destination?.route.toString())
+                    if (navController.previousBackStackEntry?.destination?.route == "search_screen") {
+                        navController.navigate("search_screen")
+                    }
+                    else {
+                        navController.popBackStack()
+                    }
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Rounded.ArrowBack, contentDescription = "Back Button")
@@ -81,7 +95,7 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             Text(
                 text = "$groupChatName", //todo: retrieve teamname from db
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(2f)
                     .wrapContentWidth(Alignment.CenterHorizontally)
             )
 
@@ -119,27 +133,49 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
 
         Row (
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier.padding(4.dp)
         ){
-            TextField(
-                value = messageInput.value,
-                onValueChange = {messageInput.value = it},
-                modifier = Modifier
-                    .testTag("inputRepo"),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(
-                    onDone = { keyboardController?.hide() })
-            )
+            //if user is not in team, hide input field
+            Log.d("group chat team current user id", viewModel.currentUserId)
+            viewModel.teamId.value = groupChatID
+            Log.d("group chat team id", viewModel.teamId.value)
+            viewModel.getTeam(viewModel.teamId.value)
+            val team = viewModel.team.collectAsState()
+            Log.d("group chat team", team.toString())
+            Log.d("isCurrentUserInsideTeam", viewModel.isCurrentUserInsideTeam.value.toString())
+            if (viewModel.isCurrentUserInsideTeam.value) {
+                OutlinedTextField(
+                    singleLine = true,
+                    modifier = modifier
+                        .weight(5f)
+                        .padding(4.dp, 4.dp)
+                        .border(
+                            BorderStroke(width = 2.dp, color = Color.Black),
+                            shape = RoundedCornerShape(50)
+                        ),
+                    value = messageInput.value,
+                    onValueChange = { messageInput.value = it },
+                    placeholder = { Text("Message Input") }
+                )
 
-
-            Button(
-                onClick = {
-                    viewModel.addMessage(messageInput.value, groupChatID)
-                    keyboardController?.hide()},
-                Modifier
-                    .testTag("chatSend")
-            ) {
-                Text(text = "SEND")
+                Button(
+                    onClick = {
+                        viewModel.addMessage(messageInput.value, groupChatID)
+                        keyboardController?.hide()},
+                    Modifier
+                        .weight(2f)
+                        .height(64.dp)
+                        .padding(4.dp, 4.dp)
+                        .testTag("chatSend")
+                ) {
+                    Text(text = "SEND")
+                }
+            }
+            else
+            {
+                Button(onClick = { viewModel.addTeamMember() }) {
+                    Text(text = "Join Team to send messages")
+                }
             }
         }
     }
@@ -162,9 +198,12 @@ fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
                 .background(PurpleGrey80)
                 .padding(16.dp)
         ) {
-            Text(text = message.content.toString())
+            Column {
+//                Text(text = message.userID.toString())
+//                Spacer(modifier = Modifier.padding(1.dp))
+                Text(text = message.content.toString())
+            }
         }
     }
-
 }
 

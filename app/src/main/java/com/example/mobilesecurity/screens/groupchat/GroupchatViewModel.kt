@@ -7,10 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.mobilesecurity.model.AccountRepository
 import com.example.mobilesecurity.model.Message
 import com.example.mobilesecurity.model.MessageRepository
+import com.example.mobilesecurity.model.Team
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -24,6 +27,33 @@ class GroupchatViewModel(private val accountRepository: AccountRepository, priva
         viewModelScope.launch {
             username.value = accountRepository.getUserData(accountRepository.currentUserId).username
         }
+    }
+    val currentUserId = accountRepository.currentUserId
+    val teamId = mutableStateOf("")
+    val isCurrentUserInsideTeam = mutableStateOf(false)
+
+    private val _team = MutableStateFlow(Team())
+    val team: StateFlow<Team> = _team
+
+    fun getTeam(teamId: String) {
+        viewModelScope.launch {
+            val fetchedTeam = accountRepository.getTeamData(teamId)
+            //check if current user is inside team
+
+//            val teamMemberIds = emptyList<String>()
+//            val teamMembers = fetchedTeam.teamMembers
+//            teamMembers.forEach { teamMember ->
+//                teamMemberIds + teamMember.userId
+//            }
+            isCurrentUserInsideTeam.value = fetchedTeam.toString().contains(currentUserId)
+            _team.value = fetchedTeam
+        }
+    }
+
+    fun addTeamMember() {
+        accountRepository.addTeamMember(_team.value, currentUserId)
+        //refresh team
+        getTeam(_team.value.id)
     }
 
     private val childEventListener = object : ChildEventListener {
