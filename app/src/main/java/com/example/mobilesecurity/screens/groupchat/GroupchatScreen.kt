@@ -104,7 +104,8 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
         ) {
             items(groupChatMessages) {message ->
                 Log.d("Chat Message", "$message")
-                ChatMessageItem(message)
+                //Each Chat message
+                ChatMessageItem(message, viewModel)
             }
         }
 
@@ -145,17 +146,17 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
 }
 
 @Composable
-fun ChatMessageItem(message: Message) {
+fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
     Column {
         Box(
             modifier = Modifier
-                .align(if (message.userID == "3RkfEdhAh8R7Nle3b4iWsiFMn4O2") Alignment.End else Alignment.Start)
+                .align(if (message.userID == viewModel.userID) Alignment.End else Alignment.Start)
                 .clip(
                     RoundedCornerShape(
                         topStart = 48f,
                         topEnd = 48f,
-                        bottomStart = if (message.userID == "3RkfEdhAh8R7Nle3b4iWsiFMn4O2") 48f else 0f,
-                        bottomEnd = if (message.userID == "3RkfEdhAh8R7Nle3b4iWsiFMn4O2") 0f else 48f
+                        bottomStart = if (message.userID == viewModel.userID) 48f else 0f,
+                        bottomEnd = if (message.userID == viewModel.userID) 0f else 48f
                     )
                 )
                 .background(PurpleGrey80)

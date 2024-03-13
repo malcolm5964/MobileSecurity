@@ -1,7 +1,9 @@
 package com.example.mobilesecurity.screens.groupchat
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.example.mobilesecurity.model.AccountRepository
 import com.example.mobilesecurity.model.Message
 import com.example.mobilesecurity.model.MessageRepository
@@ -9,10 +11,20 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.util.Date
 
 class GroupchatViewModel(private val accountRepository: AccountRepository, private val messageRepository: MessageRepository) : ViewModel() {
+
     val groupChatMessages: MutableStateFlow<List<Message>> = MutableStateFlow(emptyList())
+    val userID = accountRepository.currentUserId
+    val username = mutableStateOf("")
+
+    init {
+        viewModelScope.launch {
+            username.value = accountRepository.getUserData(accountRepository.currentUserId).username
+        }
+    }
 
     private val childEventListener = object : ChildEventListener {
         override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -52,7 +64,7 @@ class GroupchatViewModel(private val accountRepository: AccountRepository, priva
 
     fun addMessage(message: String, groupChatID: String) {
         val timestamp = Date()
-        val message = Message(accountRepository.currentUserId, message, timestamp)
+        val message = Message(accountRepository.currentUserId, username.value, message, timestamp)
         messageRepository.sendMessage(message, groupChatID)
     }
 
