@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.example.mobilesecurity.model.AccountRepository
+import com.example.mobilesecurity.model.ContactRepository
 import com.example.mobilesecurity.model.MessageRepository
 import com.example.mobilesecurity.model.SearchRepository
 import com.example.mobilesecurity.screens.createTeam.CreateTeamViewModel
@@ -35,6 +36,9 @@ import com.example.mobilesecurity.screens.groupchat.GroupchatViewModelFactory
 import com.example.mobilesecurity.screens.home.makeadmin
 import com.example.mobilesecurity.screens.home.makeadminViewModel
 import com.example.mobilesecurity.screens.home.makeadminViewModelFactory
+import com.example.mobilesecurity.screens.invitecontact.InviteContactScreen
+import com.example.mobilesecurity.screens.invitecontact.InviteContactViewModel
+import com.example.mobilesecurity.screens.invitecontact.InviteContactViewModelFactory
 import com.example.mobilesecurity.screens.view_profile.ViewProfileScreen
 import com.example.mobilesecurity.screens.view_profile.ViewProfileViewModel
 import com.example.mobilesecurity.screens.view_profile.ViewProfileViewModelFactory
@@ -50,6 +54,7 @@ sealed class Screen(val route: String) {
     object ProfileScreen: Screen(route = "profile_screen")
     object ViewProfileScreen: Screen(route = "profile_screen/{userId}")
     object GroupchatScreen: Screen(route = "groupchat_screen/{groupChatID}/{groupChatName}")
+    object InviteContactScreen: Screen(route = "invite_contact_screen")
 }
 
 //ViewModel Factory
@@ -83,6 +88,10 @@ val groupchatViewModelFactory = GroupchatViewModelFactory(
 
 val makeadminViewModelFactory = makeadminViewModelFactory(
     AccountRepository()
+)
+
+val inviteContactViewModelFactory = InviteContactViewModelFactory(
+    AccountRepository(), ContactRepository()
 )
 
 
@@ -160,6 +169,11 @@ fun NavGraph(
             val groupChatID = backStackEntry.arguments?.getString("groupChatID") ?: ""
             val viewModel: makeadminViewModel = viewModel(factory = makeadminViewModelFactory)
             makeadmin(viewModel, navController, groupChatID)
+        }
+
+        composable(Screen.InviteContactScreen.route) {
+            val viewModel: InviteContactViewModel = viewModel(factory = inviteContactViewModelFactory)
+            InviteContactScreen(viewModel, navController = navController)
         }
     }
 }

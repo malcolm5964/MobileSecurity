@@ -43,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.mobilesecurity.BottomNavigationBar
 import com.example.mobilesecurity.R
 import com.example.mobilesecurity.screens.sign_in.SignInViewModel
 
@@ -125,29 +126,6 @@ fun TeamButton(teamID: String, teamName: String, navController: NavController) {
                 text = "$teamName",
                 style = MaterialTheme.typography.bodyMedium
             )
-        }
-    }
-}
-
-
-
-
-@Composable
-fun BottomNavigationBar(navController: NavController) {
-    BottomAppBar {
-        Row(
-            horizontalArrangement = Arrangement.SpaceAround,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(onClick = { /*navController.navigate("home_screen")*/ }) {
-                Icon(Icons.Filled.Home, contentDescription = "Home")
-            }
-            IconButton(onClick = { navController.navigate("search_screen") }) {
-                Icon(Icons.Filled.Search, contentDescription = "Search")
-            }
-            IconButton(onClick = { navController.navigate("profile_screen") }) {
-                Icon(Icons.Filled.Person, contentDescription = "Profile")
-            }
         }
     }
 }

@@ -172,6 +172,7 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
                 Button(
                     onClick = {
                         viewModel.addMessage(messageInput.value, groupChatID)
+                        messageInput.value = ""
                         keyboardController?.hide()},
                     Modifier
                         .weight(2f)
