@@ -1,28 +1,22 @@
-package com.example.mobilesecurity.screens.createTeam
+package com.example.mobilesecurity.screens.invitecontact
 
+import android.content.Context
+import android.telephony.SmsManager
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-//import androidx.compose.foundation.layout.ColumnScopeInstance.align
-//import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,80 +24,49 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.LineHeightStyle.Alignment.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.mobilesecurity.BottomNavigationBar
-import com.example.mobilesecurity.model.SearchItem
-import com.example.mobilesecurity.screens.search.SearchScreen
-
+import com.example.mobilesecurity.model.Contact
 
 @Composable
-fun CreateTeamScreen(viewModel: CreateTeamViewModel = viewModel(), navController: NavController) {
+fun InviteContactScreen(viewModel: InviteContactViewModel = viewModel(), navController: NavController, modifier: Modifier = Modifier) {
+    var context = LocalContext.current
+    viewModel.getContacts(context)
     val searchResults by viewModel.searchResults.collectAsState()
 
     Scaffold(bottomBar = {
         BottomNavigationBar(navController = navController)
     }) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            // TextField for entering team name
-            TextField(
-                value = viewModel.teamName,
-                onValueChange = { viewModel.teamName = it },
-                label = { Text("Team Name") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-            // Button for creating the team
-            Button(
-                onClick =
-                {
-                    viewModel.createTeam()
-                    navController.navigate("home_screen")
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text("Create Team")
-            }
-
+        Column {
             SearchScreen(
                 searchQuery = viewModel.searchQuery,
                 searchResults = searchResults,
                 onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
-                navController = navController,
                 innerPadding = innerPadding,
-                viewModel = viewModel
+                context = context
             )
-
         }
-
     }
 }
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     searchQuery: String,
-    searchResults: List<SearchItem>,
+    searchResults: List<Contact>,
     onSearchQueryChange: (String) -> Unit,
     navController: NavController = rememberNavController(),
     innerPadding: PaddingValues,
-    viewModel: CreateTeamViewModel = viewModel()
+    context : Context
 ) {
     Column(
         verticalArrangement = Arrangement.Top,
@@ -118,7 +81,7 @@ fun SearchScreen(
             onActiveChange = {},
             placeholder =
             {
-                Text(text = "Search Name To Add Member")
+                Text(text = "Seach Contact")
             },
             leadingIcon = {
                 Icon(
@@ -138,7 +101,7 @@ fun SearchScreen(
                         key = { index -> searchResults[index].id },
                         itemContent = { index ->
                             val item = searchResults[index]
-                            SearchListItem(searchItem = item, navController = navController, viewModel = viewModel)
+                            SearchListItem(searchItem = item, navController = navController, context = context)
                         }
                     )
                 }
@@ -162,32 +125,40 @@ fun SearchScreen(
 @Composable
 fun SearchListItem(
     modifier: Modifier = Modifier,
-    searchItem: SearchItem,
+    searchItem: Contact,
     navController: NavController = rememberNavController(),
-    viewModel: CreateTeamViewModel = viewModel()
+    context : Context
 ) {
-    var checked by remember {
-        mutableStateOf(false)
-    }
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .fillMaxWidth()
             .clickable
             {
-                /*TODO: Navigate to user profile page or group page*/
+                /*TODO: Send message to contoct*/
+                try {
+                    val message = "Hey ${searchItem.name}, I am using this app (EduEngage) to connect with our teachers and friends. Please install it from the link: www.EduEngage.com"
+                    val smsManager: SmsManager = SmsManager.getDefault()
+                    smsManager.sendTextMessage(searchItem.phone, null, message, null, null)
+                    Toast.makeText(
+                        context,
+                        "Message Sent",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        context,
+                        "Error : " + e.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
     ) {
-        Text(text = if (searchItem.type == "Group") "# " + searchItem.name else searchItem.name)
-        Checkbox(checked = checked, onCheckedChange = {
-            checked = it
-            if (checked)
-            {
-                viewModel.addUserToSelected(searchItem.id)
-            }
-            else if (!checked) {
-                viewModel.removeUserFromSelected(searchItem.id)
-            }
-        })
+        Text(text = searchItem.name)
+        Icon(
+            imageVector = Icons.Default.Add,
+            tint = MaterialTheme.colorScheme.onSurface,
+            contentDescription = null
+        )
     }
 }

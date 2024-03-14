@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -41,6 +42,13 @@ fun BottomNavigationBar(navController: NavController) {
                     navController.navigate("profile_screen")
             }) {
                 Icon(Icons.Filled.Person, contentDescription = "Profile")
+            }
+            IconButton(onClick =
+            {
+                if (navController.currentDestination?.route != "invite_contact_screen")
+                    navController.navigate("invite_contact_screen")
+            }) {
+                Icon(Icons.Filled.Add, contentDescription = "Invite Contact")
             }
         }
     }
