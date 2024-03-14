@@ -44,7 +44,7 @@ sealed class Screen(val route: String) {
     object SignInScreen : Screen(route = "signin_screen")
     object SignUpScreen : Screen(route = "signup_screen")
     object HomeScreen: Screen(route = "home_screen")
-    object makeadminScreen: Screen(route= "makeadmin_screen")
+    object makeadminScreen: Screen(route= "makeadmin_screen/{groupChatID}")
     object CreateTeamScreen: Screen(route = "createTeam_screen")
     object SearchScreen: Screen(route = "search_screen")
     object ProfileScreen: Screen(route = "profile_screen")
@@ -152,9 +152,14 @@ fun NavGraph(
 
         }
 
-        composable(Screen.makeadminScreen.route) {
+//        composable(Screen.makeadminScreen.route) {
+//            val viewModel: makeadminViewModel = viewModel(factory = makeadminViewModelFactory)
+//            makeadmin(viewModel, navController = navController)
+//        }
+        composable(Screen.makeadminScreen.route) { backStackEntry ->
+            val groupChatID = backStackEntry.arguments?.getString("groupChatID") ?: ""
             val viewModel: makeadminViewModel = viewModel(factory = makeadminViewModelFactory)
-            makeadmin(viewModel, navController = navController)
+            makeadmin(viewModel, navController, groupChatID)
         }
     }
 }

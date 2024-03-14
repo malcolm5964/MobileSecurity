@@ -105,7 +105,7 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             )
 
             ElevatedButton(
-                onClick = { /*TODO: route to view members page*/ },
+                onClick = {navController.navigate("makeadmin_screen/${groupChatID}")},
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(Icons.Rounded.AccountCircle, contentDescription = "View all members")

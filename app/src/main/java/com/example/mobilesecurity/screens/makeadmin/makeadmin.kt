@@ -1,5 +1,6 @@
 package com.example.mobilesecurity.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -11,20 +12,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.mobilesecurity.R
-import com.example.mobilesecurity.Screen
-import com.example.mobilesecurity.screens.sign_in.SignInViewModel
-import com.example.mobilesecurity.ui.theme.MobileSecurityTheme
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Default
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation.NavHostController
 import com.google.firebase.firestore.FirebaseFirestore
 
 data class teamMemberData(
@@ -53,8 +52,9 @@ data class userData(
 //2. Change userisadmin to get whether userr is admin or not
 
 @Composable
-fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavController) {
-    val userIsAdmin = true
+fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavHostController, groupChatID: String) {
+    //var userIsAdmin = false
+    var userIsAdmin by remember { mutableStateOf(false) }
     var chatGroupName by remember { mutableStateOf("") } // chat group name
     var searchText by remember { mutableStateOf(TextFieldValue()) }
     var teamMembers by remember { mutableStateOf<List<teamMemberData>>(emptyList()) }
@@ -64,17 +64,20 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavCon
 
     // Fetch team data from Firestore
     val teamDocumentRef = db.collection("teams")
-        .document("8b14b87a-9277-45fd-a7e9-8a9797da2a00") // REMEMBER TO CHANGE TO USE MUTABLESTATE ONCE CHAT IS DONE
+        .document(groupChatID) // REMEMBER TO CHANGE TO USE MUTABLESTATE ONCE CHAT IS DONE
     teamDocumentRef.get().addOnSuccessListener { documentSnapshot ->
         if (documentSnapshot != null && documentSnapshot.exists()) {
             // Document exists, extract team name and members
             chatGroupName = documentSnapshot.getString("teamName") ?: ""
             val members =
                 documentSnapshot.get("teamMembers") as? List<Map<String, Any>> ?: emptyList()
-            teamMembers = members.map {
+            teamMembers = members.map { member ->
+                val userData = userDataMap[member["userId"] as String]
                 teamMemberData(
-                    userId = it["userId"] as? String ?: "",
-                    admin = it["admin"] as? Boolean ?: false
+                    userId = member["userId"] as? String ?: "",
+                    admin = member["admin"] as? Boolean ?: false,
+                    userName = userData?.userName ?: "", // Assign user name from userData if available
+                    userRole = userData?.userRole ?: ""  // Assign user role from userData if available
                 )
             }
 
@@ -110,15 +113,30 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavCon
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         // Centered large text at the top of the page
-        Text(
-            text = chatGroupName,
-            fontSize = 30.sp,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
+        Row{
+            ElevatedButton(
+                onClick =
+                {
+                        navController.popBackStack()
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back Button")
+            }
+            Text(
+                text = chatGroupName,
+                fontSize = 30.sp,
+                modifier = Modifier.weight(2f),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.weight(1f))
+        }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -141,11 +159,13 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavCon
             },
         )
 
+
+
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
             items(teamMembers.filter {
-                it.userId.contains(searchText.text, ignoreCase = true)
+                it.userName.contains(searchText.text, ignoreCase = true)
             }) { member ->
                 val userData = userDataMap[member.userId]
                 if (userData?.userName?.isNotBlank() == true) { // Check if user name is not empty
@@ -171,12 +191,41 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavCon
                                     overflow = TextOverflow.Ellipsis
                                 )
                                 // Add user role if needed
-                                Text(
-                                    text = it?.userRole ?: "",
-                                    fontSize = 18.sp
-                                )
+                                Row{
+                                    Text(
+                                        text = it?.userRole ?: "",
+                                        fontSize = 18.sp
+                                    )
+
+                                    if(member.admin == true) {
+                                        Text(
+                                            text = "(Admin)",
+                                            fontSize = 18.sp
+                                        )
+                                    }
+
+
+                                }
+
                             }
                         }
+
+//                        for(member in teamMembers)
+//                        {
+//                            if(member.userId == viewModel.userID && member.admin == true)
+//                            {
+//                                userIsAdmin = true
+//                                Log.d("True","True")
+//                                break
+//                            }
+//                            else
+//                            {
+//                                userIsAdmin = false
+//                                Log.d("False","False")
+//                            }
+//                        }
+                        userIsAdmin = teamMembers.any { it.userId == viewModel.userID && it.admin }
+
                         // Spacer between text and button
                         Spacer(modifier = Modifier.weight(1f))
                         // Button
@@ -184,7 +233,7 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavCon
                             Button(
                                 onClick = {
                                     // Update Firestore document to set admin to true for the selected user
-                                    val docRef = db.collection("teams").document("8b14b87a-9277-45fd-a7e9-8a9797da2a00")
+                                    val docRef = db.collection("teams").document(groupChatID)
                                     docRef.get().addOnSuccessListener { documentSnapshot ->
                                         if (documentSnapshot != null && documentSnapshot.exists()) {
                                             val teamMembersList = documentSnapshot.get("teamMembers") as? List<Map<String, Any>> ?: emptyList()

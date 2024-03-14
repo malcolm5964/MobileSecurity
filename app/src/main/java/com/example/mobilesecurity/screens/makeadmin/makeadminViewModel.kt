@@ -3,11 +3,13 @@ package com.example.mobilesecurity.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.mobilesecurity.model.AccountRepository
+import androidx.lifecycle.viewModelScope
 
 
 class makeadminViewModel(private val repository: AccountRepository) : ViewModel() {
 
     val userID = repository.currentUserId
+
 
 
 }
@@ -21,3 +23,7 @@ class makeadminViewModelFactory(private val repository: AccountRepository): View
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
+
+
+
