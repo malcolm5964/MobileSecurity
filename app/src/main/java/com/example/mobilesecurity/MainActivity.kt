@@ -25,7 +25,6 @@ import com.example.mobilesecurity.ui.theme.MobileSecurityTheme
 class MainActivity : ComponentActivity() {
     private val REQUEST_READ_CONTACTS_PERMISSION = 1001
     private val REQUEST_WRITE_CONTACTS_PERMISSION = 1002
-    private val REQUEST_SEND_SMS_PERMISSION = 1003
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,16 +47,6 @@ class MainActivity : ComponentActivity() {
         else {
             // Permission is granted
             Log.d("PERMISSION", "Write Contacts permission granted")
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS), REQUEST_SEND_SMS_PERMISSION)
-            Log.d("PERMISSION", "Send SMS permission not granted")
-        }
-        else {
-            // Permission is granted
-            Log.d("PERMISSION", "Send SMS permission granted")
         }
 
         setContent {

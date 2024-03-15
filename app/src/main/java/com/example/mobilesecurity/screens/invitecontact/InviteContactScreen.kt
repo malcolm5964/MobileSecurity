@@ -1,7 +1,11 @@
 package com.example.mobilesecurity.screens.invitecontact
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.telephony.SmsManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +35,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -42,6 +48,18 @@ fun InviteContactScreen(viewModel: InviteContactViewModel = viewModel(), navCont
     var context = LocalContext.current
     viewModel.getContacts(context)
     val searchResults by viewModel.searchResults.collectAsState()
+
+    val REQUEST_SEND_SMS_PERMISSION = 1003
+
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+        // Permission is not granted
+        ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.SEND_SMS), REQUEST_SEND_SMS_PERMISSION)
+        Log.d("PERMISSION", "Send SMS permission not granted")
+    }
+    else {
+        // Permission is granted
+        Log.d("PERMISSION", "Send SMS permission granted")
+    }
 
     Scaffold(bottomBar = {
         BottomNavigationBar(navController = navController)
