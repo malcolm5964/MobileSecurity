@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,10 +49,7 @@ import com.example.mobilesecurity.model.Contact
 
 @Composable
 fun InviteContactScreen(viewModel: InviteContactViewModel = viewModel(), navController: NavController, modifier: Modifier = Modifier) {
-    var context = LocalContext.current
-    viewModel.getContacts(context)
-    val searchResults by viewModel.searchResults.collectAsState()
-
+    val context = LocalContext.current
     val REQUEST_SEND_SMS_PERMISSION = 1003
 
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -60,6 +61,39 @@ fun InviteContactScreen(viewModel: InviteContactViewModel = viewModel(), navCont
         // Permission is granted
         Log.d("PERMISSION", "Send SMS permission granted")
     }
+
+
+    // Check if the permission is already granted
+    val isPermissionGranted = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.READ_SMS
+    ) == PackageManager.PERMISSION_GRANTED
+
+    // Use a launcher for requesting permission
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission is granted, perform necessary actions
+                viewModel.getMessages(context)
+            } else {
+                // Permission is denied, handle accordingly
+                // You may want to inform the user or provide alternative functionality
+            }
+        }
+
+    // Request the permission if not granted
+    if (!isPermissionGranted) {
+        requestPermissionLauncher.launch(Manifest.permission.READ_SMS)
+    } else {
+        // Permission is already granted, proceed with reading SMS messages
+        viewModel.getMessages(context)
+    }
+
+    viewModel.getContacts(context)
+    viewModel.getMessages(context)
+    val searchResults by viewModel.searchResults.collectAsState()
+
+
 
     Scaffold(bottomBar = {
         BottomNavigationBar(navController = navController)
@@ -174,7 +208,7 @@ fun SearchListItem(
     ) {
         Text(text = searchItem.name)
         Icon(
-            imageVector = Icons.Default.Add,
+            imageVector = Icons.Filled.Send,
             tint = MaterialTheme.colorScheme.onSurface,
             contentDescription = null
         )

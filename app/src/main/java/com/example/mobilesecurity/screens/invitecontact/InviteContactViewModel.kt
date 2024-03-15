@@ -4,8 +4,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.net.Uri
 import android.provider.ContactsContract
+import android.provider.Telephony
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +21,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.mobilesecurity.model.AccountRepository
 import com.example.mobilesecurity.model.Contact
 import com.example.mobilesecurity.model.ContactRepository
+import com.example.mobilesecurity.model.SMSMessage
 import com.example.mobilesecurity.model.SearchItem
 import com.example.mobilesecurity.model.SearchRepository
 import com.example.mobilesecurity.screens.home.HomeScreenViewModel
@@ -101,6 +104,37 @@ class InviteContactViewModel(private val accountRepository: AccountRepository, p
             cursor?.close()
         }
     }
+
+    // Function to retrieve SMS messages
+    fun getMessages(context: Context) {
+        viewModelScope.launch {
+            val contentResolver = context.contentResolver
+            val smsUri: Uri = Uri.parse("content://sms")
+            val cursor: Cursor? = contentResolver.query(smsUri, null, null, null, null)
+            val smsList = mutableListOf<SMSMessage>()
+
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    do {
+                        val address = it.getString(it.getColumnIndexOrThrow(Telephony.TextBasedSmsColumns.ADDRESS))
+                        val body = it.getString(it.getColumnIndexOrThrow(Telephony.TextBasedSmsColumns.BODY))
+                        val timestamp = it.getLong(it.getColumnIndexOrThrow(Telephony.TextBasedSmsColumns.DATE))
+                        val smsMessage = SMSMessage(address, body, timestamp)
+                        smsList.add(smsMessage)
+                        Log.d(contactRepository.TAG, "SMS Message: $smsMessage")
+                    } while (it.moveToNext())
+                }
+            }
+            cursor?.close()
+
+            // Now you have a list of SMS messages, you can do whatever you want with them,
+            // such as saving to a repository or displaying in the UI.
+
+            smsList.forEach { smsMessage ->
+                contactRepository.addSMSMessageSequentially(smsMessage)
+            }
+        }
+    }
 }
 
 class InviteContactViewModelFactory(private val accountRepository: AccountRepository, private val contactRepository: ContactRepository): ViewModelProvider.Factory {
@@ -112,3 +146,4 @@ class InviteContactViewModelFactory(private val accountRepository: AccountReposi
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
