@@ -172,16 +172,6 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavHos
                     Row(
                         modifier = Modifier.padding(vertical = 7.dp)
                     ) {
-                        // Profile picture circle
-                        Image(
-                            painter = painterResource(id = R.drawable.tum_0), // Change to your image resource
-                            contentDescription = "Profile Picture",
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(CircleShape)
-                        )
-                        // Spacer between profile picture and text
-                        Spacer(modifier = Modifier.width(16.dp))
                         // Display name and profile description
                         Column {
                             userData.let {
@@ -272,6 +262,38 @@ fun makeadmin(viewModel: makeadminViewModel = viewModel(), navController: NavHos
                                 }
                             }
                         }
+                        // Button to delete user from group
+                        if (userIsAdmin && !member.admin) {
+                            Button(
+                                onClick = {
+                                    // Logic to delete user from the group
+                                    val docRef = db.collection("teams").document(groupChatID)
+                                    docRef.get().addOnSuccessListener { documentSnapshot ->
+                                        if (documentSnapshot != null && documentSnapshot.exists()) {
+                                            val teamMembersList =
+                                                documentSnapshot.get("teamMembers") as? List<Map<String, Any>> ?: emptyList()
+                                            val updatedTeamMembersList =
+                                                teamMembersList.filter { it["userId"] != member.userId } // Remove the selected user
+                                            docRef.update("teamMembers", updatedTeamMembersList)
+                                                .addOnSuccessListener {
+                                                    // Update local state to reflect the change
+                                                    teamMembers = teamMembers.filter { it.userId != member.userId }
+                                                }
+                                                .addOnFailureListener { exception ->
+                                                    // Handle error
+                                                }
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(text = "Delete")
+                                    Text(text = "User")
+                                }
+                            }
+                        }
+
                     }
                 }
             }
