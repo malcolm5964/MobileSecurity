@@ -43,7 +43,7 @@ class ContactRepository {
 
 
 
-    //addSMSMessageSequentially - check if the message exist first, then add it
+    //addSMSMessageSequentially - check if the message exist first, then add it under the current user id
     suspend fun addSMSMessageSequentially(smsMessage: SMSMessage) {
         withContext(Dispatchers.IO) {
             // Check if the message already exists

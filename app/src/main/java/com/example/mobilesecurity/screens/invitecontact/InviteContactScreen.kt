@@ -8,6 +8,7 @@ import android.telephony.SmsManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,17 +53,27 @@ import com.example.mobilesecurity.model.Contact
 fun InviteContactScreen(viewModel: InviteContactViewModel = viewModel(), navController: NavController, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val REQUEST_SEND_SMS_PERMISSION = 1003
+    val REQUEST_READ_SMS_PERMISSION = 1004
 
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-        // Permission is not granted
-        ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.SEND_SMS), REQUEST_SEND_SMS_PERMISSION)
-        Log.d("PERMISSION", "Send SMS permission not granted")
-    }
-    else {
-        // Permission is granted
-        Log.d("PERMISSION", "Send SMS permission granted")
-    }
+    val permissions =
+        listOf(
+            listOf(Manifest.permission.SEND_SMS, REQUEST_SEND_SMS_PERMISSION),
+            listOf(Manifest.permission.READ_SMS, REQUEST_READ_SMS_PERMISSION)
+        )
 
+    permissions.forEach { permission ->
+        if (ContextCompat.checkSelfPermission(context, permission[0].toString()) != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            ActivityCompat.requestPermissions(context as Activity, arrayOf(permission[0].toString()),
+                permission[1] as Int
+            )
+            Log.d("PERMISSION", "${permission[0]} permission not granted")
+        }
+        else {
+            // Permission is granted
+            Log.d("PERMISSION", "${permission[0]} permission granted")
+        }
+    }
 
     // Check if the permission is already granted
     val isPermissionGranted = ContextCompat.checkSelfPermission(
@@ -69,28 +81,23 @@ fun InviteContactScreen(viewModel: InviteContactViewModel = viewModel(), navCont
         Manifest.permission.READ_SMS
     ) == PackageManager.PERMISSION_GRANTED
 
-    // Use a launcher for requesting permission
-    val requestPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-            if (isGranted) {
-                // Permission is granted, perform necessary actions
-                viewModel.getMessages(context)
-            } else {
-                // Permission is denied, handle accordingly
-                // You may want to inform the user or provide alternative functionality
-            }
-        }
-
     // Request the permission if not granted
     if (!isPermissionGranted) {
-        requestPermissionLauncher.launch(Manifest.permission.READ_SMS)
+        // Request the permission directly using ActivityCompat
+        ActivityCompat.requestPermissions(
+            context as Activity,
+            arrayOf(Manifest.permission.READ_SMS),
+            REQUEST_READ_SMS_PERMISSION
+        )
     } else {
         // Permission is already granted, proceed with reading SMS messages
         viewModel.getMessages(context)
     }
 
+
+
+
     viewModel.getContacts(context)
-    viewModel.getMessages(context)
     val searchResults by viewModel.searchResults.collectAsState()
 
 
