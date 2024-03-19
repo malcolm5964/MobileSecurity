@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import java.lang.Exception
+import java.util.Date
 import java.util.UUID
 
 class AccountRepository {
@@ -176,4 +178,24 @@ class AccountRepository {
         }
     }
 
+    //save UserLocationWithAddress to firestore
+    suspend fun saveUserLocationWithAddress(userID: String, address: String, latitude: Double, longitude: Double, timestamp: Date) {
+        //if userId exists in firestore and location is different timestamp, add on the location
+        //userId
+        //      locations
+        //          address, latitude, longitude, timestamp
+        //          address, latitude, longitude, timestamp
+        //          address, latitude, longitude, timestamp
+        //          address, latitude, longitude, timestamp
+        val userLocationWithAddress = db.collection("userLocationWithAddress").document(userID).get().await().toObject<UserLocationWithAddress>()
+        //check if timestamp is different
+        if (userLocationWithAddress?.locations?.last()?.timestamp != timestamp) {
+            //add new location
+            if (userLocationWithAddress != null) {
+                db.collection("userLocationWithAddress")
+                    .document(userID)
+                    .update("locations", userLocationWithAddress.locations + LocationWithAddress(address, latitude, longitude, timestamp))
+            }
+        }
+    }
 }

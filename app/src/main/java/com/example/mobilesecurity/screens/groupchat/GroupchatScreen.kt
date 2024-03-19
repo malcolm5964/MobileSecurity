@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -30,9 +29,9 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.OutlinedTextField
@@ -44,11 +43,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import com.example.mobilesecurity.model.Message
 import com.example.mobilesecurity.ui.theme.PurpleGrey80
 import java.text.SimpleDateFormat
@@ -62,6 +67,20 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
     LaunchedEffect(groupChatID) {
         viewModel.getGroupChatMessages("$groupChatID")
     }
+
+    var context = LocalContext.current
+
+    viewModel.initializeMapVariables(context)
+
+    viewModel.getCurrentLocation(
+        onGetCurrentLocationFailed = {
+            Log.d("getCurrentLocation", "Failed to get current location")
+        },
+        onGetCurrentLocationSuccess = {
+            Log.d("getCurrentLocation", "Successfully got current location: $it")
+        },
+        context = context
+    )
 
     var messageInput = remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -180,7 +199,31 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
                         .padding(4.dp, 4.dp)
                         .testTag("chatSend")
                 ) {
-                    Text(text = "SEND")
+                    Text(text = "SEND", fontSize = TextUnit(11f, TextUnitType.Sp))
+                }
+
+                Button(
+                    onClick = {
+                        viewModel.getCurrentLocation(
+                            onGetCurrentLocationFailed = {
+                                Log.d("getCurrentLocation", "Failed to get current location")
+                                viewModel.addMessage("Failed to get current location", groupChatID)
+                            },
+                            onGetCurrentLocationSuccess = {
+                                Log.d("getCurrentLocation", "Successfully got current location: $it")
+                                val link = "https://www.google.com/maps/search/?api=1&query=${it.first},${it.second}"
+                                viewModel.addMessage("Here's my current location:\n$link", groupChatID)
+                            },
+                            context = context
+                        )
+                        keyboardController?.hide()},
+                    Modifier
+                        .weight(2f)
+                        .height(64.dp)
+                        .padding(4.dp, 4.dp)
+                        .testTag("chatSend")
+                ) {
+                    Icon(Icons.Filled.LocationOn, contentDescription = "LocationOn")
                 }
             }
             else
@@ -234,9 +277,47 @@ fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
                 Spacer(
                     modifier = Modifier.padding(1.dp)
                 )
-                Text(
-                    text = message.content.toString()
-                )
+                //check if message is a location
+                if (message.content.toString().contains("https://www.google.com/maps/search/?api=1&query=")) {
+                    //get seperate message and link
+                    val messageContent = message.content.toString().split("\n")
+                    //create annotated string using messageContent[0] and messageContent[1]
+                    Log.d("ClickableText", "messageContent[0]: ${messageContent[0]}")
+                    Log.d("ClickableText", "messageContent[1]: ${messageContent[1]}")
+                    //extract coordinates from link
+                    val coordinates = messageContent[1].split("?api=1&query=")[1].split(",")
+                    val lat = coordinates[0].toDouble()
+                    val lon = coordinates[1].toDouble()
+                    val address = viewModel.geoCoder.getFromLocation(lat, lon, 1)
+                    val text = address?.get(0)?.getAddressLine(0).toString()
+                    val addressQuery = "https://www.google.com/maps/search/?api=1&query=${text.replace(" ", "+")}"
+                    Log.d("addressQuery", addressQuery)
+                    val annotatedString = buildAnnotatedString {
+                        append(messageContent[0])
+
+                        pushStringAnnotation(tag = addressQuery, annotation = addressQuery)
+                        withStyle(style = SpanStyle(color = Color.Blue)) {
+                            append(" $text")
+                        }
+                        pop()
+                    }
+                    val uriHandler = LocalUriHandler.current
+                    ClickableText(
+                        text = annotatedString,
+                        onClick = {
+                            //handle click on link
+                            annotatedString.getStringAnnotations(tag = addressQuery, start = 0, end = annotatedString.length).firstOrNull()?.let { annotation ->
+                                Log.d("ClickableText", "Link clicked: ${annotation.item}")
+                                uriHandler.openUri(annotation.item)
+                            }
+                        }
+                    )
+                }
+                else {
+                    Text(
+                        text = message.content.toString()
+                    )
+                }
             }
         }
     }
