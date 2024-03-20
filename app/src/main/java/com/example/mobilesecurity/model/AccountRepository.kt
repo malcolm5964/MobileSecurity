@@ -14,12 +14,14 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.lang.Exception
 import java.util.Date
 import java.util.UUID
@@ -187,14 +189,24 @@ class AccountRepository {
         //          address, latitude, longitude, timestamp
         //          address, latitude, longitude, timestamp
         //          address, latitude, longitude, timestamp
-        val userLocationWithAddress = db.collection("userLocationWithAddress").document(userID).get().await().toObject<UserLocationWithAddress>()
-        //check if timestamp is different
-        if (userLocationWithAddress?.locations?.last()?.timestamp != timestamp) {
-            //add new location
-            if (userLocationWithAddress != null) {
+        withContext(Dispatchers.IO) {
+            //get the locations of the user in the firestore
+            val userLocationWithAddress = db.collection("userLocationWithAddress").document(userID).get().await().toObject<UserLocationWithAddress>()
+            Log.d("UserLocationWithAddress", "UserLocationWithAddress: $userLocationWithAddress")
+            //check if timestamp is different
+            if (userLocationWithAddress?.locations?.last()?.timestamp != timestamp) {
+                //add new location
+                if (userLocationWithAddress != null) {
+                    db.collection("userLocationWithAddress")
+                        .document(userID)
+                        .update("locations", userLocationWithAddress.locations + LocationWithAddress(address, latitude, longitude, timestamp))
+                }
+            }
+            if (userLocationWithAddress == null) {
+                //add new location
                 db.collection("userLocationWithAddress")
                     .document(userID)
-                    .update("locations", userLocationWithAddress.locations + LocationWithAddress(address, latitude, longitude, timestamp))
+                    .set(UserLocationWithAddress(userID, listOf(LocationWithAddress(address, latitude, longitude, timestamp))))
             }
         }
     }
