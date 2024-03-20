@@ -40,6 +40,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -72,15 +73,20 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
 
     viewModel.initializeMapVariables(context)
 
-    viewModel.getCurrentLocation(
-        onGetCurrentLocationFailed = {
-            Log.d("getCurrentLocation", "Failed to get current location")
-        },
-        onGetCurrentLocationSuccess = {
-            Log.d("getCurrentLocation", "Successfully got current location: $it")
-        },
-        context = context
-    )
+    var isFirstCompose = rememberSaveable { mutableStateOf(true) }
+
+    if (isFirstCompose.value) {
+        isFirstCompose.value = false
+        viewModel.getCurrentLocation(
+            onGetCurrentLocationFailed = {
+                Log.d("getCurrentLocation", "Failed to get current location")
+            },
+            onGetCurrentLocationSuccess = {
+                Log.d("getCurrentLocation", "Successfully got current location: $it")
+            },
+            context = context
+        )
+    }
 
     var messageInput = remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
