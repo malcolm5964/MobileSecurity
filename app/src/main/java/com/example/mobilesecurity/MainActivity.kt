@@ -98,6 +98,7 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.WRITE_CONTACTS,
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.READ_SMS,
+                Manifest.permission.INTERNET,
             )
         )
 

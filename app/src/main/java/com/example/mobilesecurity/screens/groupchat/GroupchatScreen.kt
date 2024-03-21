@@ -1,6 +1,10 @@
 package com.example.mobilesecurity.screens.groupchat
 
 import android.util.Log
+import android.view.ViewGroup
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.viewinterop.AndroidView
 import com.example.mobilesecurity.model.Message
 import com.example.mobilesecurity.ui.theme.PurpleGrey80
 import java.text.SimpleDateFormat
@@ -296,7 +301,7 @@ fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
                     val lon = coordinates[1].toDouble()
                     val address = viewModel.geoCoder.getFromLocation(lat, lon, 1)
                     val text = address?.get(0)?.getAddressLine(0).toString()
-                    val addressQuery = "https://www.google.com/maps/search/?api=1&query=${text.replace(" ", "+")}"
+                    val addressQuery = "https://www.google.com/maps/search/?api=1&&map_action=pano&query=${text.replace(" ", "+")}"
                     Log.d("addressQuery", addressQuery)
                     val annotatedString = buildAnnotatedString {
                         append(messageContent[0])
@@ -308,16 +313,37 @@ fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
                         pop()
                     }
                     val uriHandler = LocalUriHandler.current
-                    ClickableText(
-                        text = annotatedString,
-                        onClick = {
-                            //handle click on link
-                            annotatedString.getStringAnnotations(tag = addressQuery, start = 0, end = annotatedString.length).firstOrNull()?.let { annotation ->
-                                Log.d("ClickableText", "Link clicked: ${annotation.item}")
-                                uriHandler.openUri(annotation.item)
+
+                    //display mini map of the addressQuery
+                    Column {
+                        AndroidView(factory =
+                        { context ->
+                            WebView(context).apply {
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT
+                                )
+                                settings.javaScriptEnabled = true
+                                settings.setSupportZoom(true)
+                                settings.builtInZoomControls = true
+                                webViewClient = WebViewClient()
+                                settings.defaultZoom = WebSettings.ZoomDensity.FAR
+                                loadUrl(addressQuery)
                             }
-                        }
-                    )
+                        },
+                            update = { it.loadUrl(addressQuery) },
+                            modifier = Modifier.fillMaxWidth().height(500.dp))
+                        ClickableText(
+                            text = annotatedString,
+                            onClick = {
+                                //handle click on link
+                                annotatedString.getStringAnnotations(tag = addressQuery, start = 0, end = annotatedString.length).firstOrNull()?.let { annotation ->
+                                    Log.d("ClickableText", "Link clicked: ${annotation.item}")
+                                    uriHandler.openUri(annotation.item)
+                                }
+                            }
+                        )
+                    }
                 }
                 else {
                     Text(
