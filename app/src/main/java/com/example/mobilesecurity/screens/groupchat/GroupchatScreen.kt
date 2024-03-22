@@ -1,5 +1,6 @@
 package com.example.mobilesecurity.screens.groupchat
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebSettings
@@ -31,19 +32,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.clip
@@ -62,14 +70,24 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.mobilesecurity.model.Message
 import com.example.mobilesecurity.ui.theme.PurpleGrey80
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController: NavController, groupChatID: String, groupChatName: String, modifier: Modifier = Modifier) {
 
+    val isScrolledToLastItem = remember {
+        mutableStateOf(false)
+    }
+
+    val listState = rememberLazyListState()
+    // Remember a CoroutineScope to be able to launch
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(groupChatID) {
         viewModel.getGroupChatMessages("$groupChatID")
     }
@@ -155,12 +173,23 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .testTag("chatList")
+                .testTag("chatList"),
+            state = listState
         ) {
             items(groupChatMessages) {message ->
                 Log.d("Chat Message", "$message")
                 //Each Chat message
                 ChatMessageItem(message, viewModel)
+
+                coroutineScope.launch {
+                    // Animate scroll to the last item
+                    if (!isScrolledToLastItem.value) {
+                        if (groupChatMessages.isNotEmpty()) {
+                            listState.animateScrollToItem(groupChatMessages.size - 1)
+                            isScrolledToLastItem.value = true
+                        }
+                    }
+                }
             }
         }
 
@@ -203,7 +232,9 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
                     onClick = {
                         viewModel.addMessage(messageInput.value, groupChatID)
                         messageInput.value = ""
-                        keyboardController?.hide()},
+                        keyboardController?.hide()
+                        isScrolledToLastItem.value = false
+                    },
                     Modifier
                         .weight(2f)
                         .height(64.dp)
@@ -227,7 +258,9 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
                             },
                             context = context
                         )
-                        keyboardController?.hide()},
+                        keyboardController?.hide()
+                        isScrolledToLastItem.value = false
+                    },
                     Modifier
                         .weight(2f)
                         .height(64.dp)
@@ -245,10 +278,32 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
             }
         }
     }
+    if (groupChatMessages.isNotEmpty())
+    {
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier
+                .padding(bottom = 100.dp, end = 10.dp)
+        ) {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(groupChatMessages.size - 1)
+                    }
+                }
+            ) {
+                Icon(Icons.Filled.KeyboardArrowDown, "Scroll to bottom")
+            }
+        }
+    }
 }
 
 @Composable
-fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
+fun ChatMessageItem(
+    message: Message,
+    viewModel: GroupchatViewModel
+) {
     Column(
         modifier = Modifier.padding(0.dp, 2.dp)
     ) {
@@ -332,7 +387,9 @@ fun ChatMessageItem(message: Message, viewModel: GroupchatViewModel) {
                             }
                         },
                             update = { it.loadUrl(addressQuery) },
-                            modifier = Modifier.fillMaxWidth().height(500.dp))
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(500.dp))
                         ClickableText(
                             text = annotatedString,
                             onClick = {
