@@ -29,12 +29,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
@@ -44,6 +46,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -280,20 +283,23 @@ fun GroupChatScreen(viewModel : GroupchatViewModel = viewModel(), navController:
     }
     if (groupChatMessages.isNotEmpty())
     {
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.End,
+        Box(
+            contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
                 .padding(bottom = 100.dp, end = 10.dp)
+                .size(48.dp) // This sets the size of the Box, not the button
         ) {
-            ExtendedFloatingActionButton(
+            IconButton(
                 onClick = {
                     coroutineScope.launch {
                         listState.animateScrollToItem(groupChatMessages.size - 1)
                     }
-                }
+                },
+                modifier = Modifier
+                    .size(34.dp)
+                    .background(Color.White, CircleShape)
             ) {
-                Icon(Icons.Filled.KeyboardArrowDown, "Scroll to bottom")
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Scroll to bottom", modifier = Modifier.size(24.dp)) // Adjust the icon size if needed
             }
         }
     }
