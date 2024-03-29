@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- permissions for media storage, location and microphone -->
-    <!-- for malicious activity -->
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
