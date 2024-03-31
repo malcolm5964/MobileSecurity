@@ -2,7 +2,7 @@
 EduEngage is an innovative mobile application designed to revolutionise how teachers and students interact in the educational landscape. EduEngage aims to bridge the communication gap between educators and learners by leveraging advanced mobile technology to foster a dynamic, interactive, and supportive learning environment. EduEngage's main goal is to make communication within the educational community easier, more effective, and efficient.Educators can utilise such an app for effective communication with students, fostering discussions, answering queries.
 ## Getting Started
 ### Built With
-* [![Static Badge](https://img.shields.io/badge/android_studio-android_studio?logo=android)[https://developer.android.com/]]
+* ![Static Badge](https://img.shields.io/badge/android_studio-android_studio?logo=android)[https://developer.android.com/]
 * ![Static Badge](https://img.shields.io/badge/firebase-orange?logo=firebase)[https://firebase.google.com/]
 * ![Static Badge](https://img.shields.io/badge/kotlin-purple?logo=kotlin)[https://kotlinlang.org/]
 ## Installation
